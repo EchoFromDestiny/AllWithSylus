@@ -1,0 +1,375 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All With Sylus</title>
+    <style>
+        @font-face {
+            font-family: 'MyTitleFont';
+            src: url('fonts/zhuque.ttf') format('truetype');
+        }
+
+        body {
+            font-family: "宋体", "SimSun", serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #f9f9f9;
+            color: #222;
+        }
+
+        h1 {
+            font-family: 'MyTitleFont', "宋体", serif;
+            font-size: 32px;
+        }
+
+        /* 分类卡片 */
+        .category-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .category-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+        .category-name {
+            font-family: 'MyTitleFont', "宋体", serif;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .category-count {
+            color: #888;
+            font-size: 14px;
+            margin-left: 12px;
+        }
+
+        /* 文章列表（层级缩进） */
+        .post-tree {
+            margin-left: 20px;
+            margin-top: 12px;
+            display: none; /* 默认隐藏，点击分类后展开 */
+        }
+        .post-tree.open {
+            display: block;
+        }
+
+        .tree-item {
+            padding: 10px 16px;
+            margin: 6px 0;
+            background: #f5f5f5;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tree-item:hover {
+            background: #e8e8e8;
+        }
+
+        .tree-item.folder {
+            background: #eef3ff;
+            font-family: 'MyTitleFont', "宋体", serif;
+            font-size: 18px;
+        }
+        .tree-item.folder:hover {
+            background: #dde6f5;
+        }
+
+        .tree-item .indent {
+            display: inline-block;
+            width: 20px;
+        }
+
+        .tree-item .file-icon {
+            font-size: 18px;
+        }
+
+        .tree-item .post-date {
+            color: #888;
+            font-size: 13px;
+            margin-left: auto;
+        }
+
+        /* 子列表 */
+        .tree-children {
+            margin-left: 30px;
+            display: none;
+        }
+        .tree-children.open {
+            display: block;
+        }
+
+        /* 文章正文显示区 */
+        #post-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            line-height: 1.8;
+            display: none;
+            margin-top: 20px;
+        }
+        #back-btn {
+            display: inline-block;
+            margin-bottom: 16px;
+            color: #1a0dab;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #back-btn:hover {
+            text-decoration: underline;
+        }
+
+        /* 搜索框 */
+        #search {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            font-family: "宋体", "SimSun", serif;
+        }
+
+        /* 导航路径 */
+        #breadcrumb {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 12px;
+            padding: 8px 0;
+        }
+        #breadcrumb span {
+            cursor: pointer;
+            color: #1a0dab;
+        }
+        #breadcrumb span:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>文章列表</h1>
+
+    <!-- 搜索框 -->
+    <input type="text" id="search" placeholder="搜索文章标题...">
+
+    <!-- 导航路径 -->
+    <div id="breadcrumb">首页</div>
+
+    <!-- 文章树 -->
+    <div id="tree-container"></div>
+
+    <!-- 文章正文 -->
+    <div id="post-content">
+        <div id="back-btn">← 返回列表</div>
+        <div id="article-body"></div>
+    </div>
+
+    <script>
+        // ---------- 核心逻辑 ----------
+        let allData = null;
+        let currentPath = []; // 当前导航路径
+
+        // 加载数据
+        async function loadData() {
+            const res = await fetch('posts.json');
+            allData = await res.json();
+            return allData;
+        }
+
+        // 渲染树（根据当前路径）
+        function renderTree(path) {
+            const container = document.getElementById('tree-container');
+            container.innerHTML = '';
+
+            // 找到当前层级的数据
+            let currentLevel = allData.categories;
+            let breadcrumbText = '首页';
+            
+            if (path.length > 0) {
+                // 根据路径找到对应的子节点
+                let temp = allData.categories;
+                for (let i = 0; i < path.length; i++) {
+                    const found = temp.find(item => item.name === path[i]);
+                    if (found && found.children) {
+                        temp = found.children;
+                        breadcrumbText += ' / ' + path[i];
+                    } else {
+                        // 如果路径不存在，回到根
+                        path = [];
+                        currentLevel = allData.categories;
+                        breadcrumbText = '首页';
+                        break;
+                    }
+                }
+                if (path.length > 0) {
+                    currentLevel = temp;
+                }
+            }
+
+            // 更新面包屑
+            document.getElementById('breadcrumb').innerHTML = breadcrumbText;
+
+            // 如果当前层级是文章列表（没有 children 或 children 都是文件）
+            const hasFolder = currentLevel.some(item => item.children);
+            const hasFile = currentLevel.some(item => item.file);
+
+            if (hasFile && !hasFolder) {
+                // 全是文章，直接显示列表
+                currentLevel.forEach(item => {
+                    if (item.file) {
+                        const div = createFileItem(item);
+                        container.appendChild(div);
+                    }
+                });
+            } else {
+                // 有分类/文件夹，显示可展开的树
+                currentLevel.forEach(item => {
+                    if (item.children) {
+                        // 这是一个分类或文件夹
+                        const div = createFolderItem(item, path);
+                        container.appendChild(div);
+                    } else if (item.file) {
+                        // 这是单独的文章
+                        const div = createFileItem(item);
+                        container.appendChild(div);
+                    }
+                });
+            }
+        }
+
+        // 创建文件夹/分类元素
+        function createFolderItem(item, parentPath) {
+            const div = document.createElement('div');
+            div.className = 'tree-item folder';
+            
+            const isRootCategory = parentPath.length === 0;
+            const icon = item.icon || (isRootCategory ? '📁' : '📂');
+            
+            div.innerHTML = `
+                <span class="file-icon">${icon}</span>
+                <span style="font-weight:600;">${item.name}</span>
+                <span class="post-date">${item.children ? item.children.length : 0} 篇</span>
+            `;
+
+            div.addEventListener('click', () => {
+                // 进入这个分类/文件夹
+                const newPath = [...parentPath, item.name];
+                currentPath = newPath;
+                renderTree(newPath);
+            });
+
+            return div;
+        }
+
+        // 创建文章元素
+        function createFileItem(item) {
+            const div = document.createElement('div');
+            div.className = 'tree-item';
+            div.innerHTML = `
+                <span class="file-icon">📄</span>
+                <span>${item.name}</span>
+                <span class="post-date">${item.date || ''}</span>
+            `;
+
+            div.addEventListener('click', () => {
+                loadAndShowArticle(item.file);
+            });
+
+            return div;
+        }
+
+        // 加载并显示文章
+        async function loadAndShowArticle(filePath) {
+            const res = await fetch(filePath);
+            const markdown = await res.text();
+
+            let html = markdown
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/^- (.*$)/gim, '<li>$1</li>')
+                .replace(/\n/g, '<br>');
+
+            document.getElementById('tree-container').style.display = 'none';
+            document.getElementById('search').style.display = 'none';
+            document.getElementById('breadcrumb').style.display = 'none';
+            document.getElementById('post-content').style.display = 'block';
+            document.getElementById('article-body').innerHTML = html;
+        }
+
+        // 返回列表
+        document.getElementById('back-btn').addEventListener('click', () => {
+            document.getElementById('tree-container').style.display = 'block';
+            document.getElementById('search').style.display = 'block';
+            document.getElementById('breadcrumb').style.display = 'block';
+            document.getElementById('post-content').style.display = 'none';
+            renderTree(currentPath); // 重新渲染当前路径
+        });
+
+        // 搜索功能（扁平化搜索所有文章）
+        function flattenTree(items, path = []) {
+            let result = [];
+            items.forEach(item => {
+                if (item.file) {
+                    result.push({ ...item, path: [...path, item.name] });
+                }
+                if (item.children) {
+                    result = result.concat(flattenTree(item.children, [...path, item.name]));
+                }
+            });
+            return result;
+        }
+
+        document.getElementById('search').addEventListener('input', function(e) {
+            const keyword = e.target.value.trim();
+            const container = document.getElementById('tree-container');
+            container.innerHTML = '';
+
+            if (!keyword) {
+                // 没有搜索词，显示正常树
+                renderTree(currentPath);
+                return;
+            }
+
+            // 扁平化所有文章
+            const allArticles = flattenTree(allData.categories);
+            const filtered = allArticles.filter(item => 
+                item.name.includes(keyword) || item.path.some(p => p.includes(keyword))
+            );
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:#888;padding:40px;">没有找到相关文章</div>';
+                return;
+            }
+
+            filtered.forEach(item => {
+                const div = createFileItem(item);
+                // 显示路径信息
+                const pathStr = item.path.slice(0, -1).join(' / ');
+                div.innerHTML += `<span style="color:#999;font-size:12px;margin-left:8px;">(${pathStr})</span>`;
+                container.appendChild(div);
+            });
+        });
+
+        // 初始化
+        async function init() {
+            await loadData();
+            currentPath = [];
+            renderTree([]);
+        }
+
+        init();
+    </script>
+</body>
+</html>
