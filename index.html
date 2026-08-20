@@ -437,33 +437,75 @@
             const res = await fetch(filePath);
             const markdown = await res.text();
 
-            // 先按空行分段，再处理其他格式
-            let paragraphs = markdown.split(/\n\s*\n/); // 按空行分割
-            let html = paragraphs.map(para => {
-                // 处理每一段内的格式
-                let content = para
-                    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-                    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                    .replace(/^- (.*$)/gim, '<li>$1</li>')
-                    .replace(/\n/g, '<br>');
-                // 如果不是标题或列表，用 <p> 包起来
-                if (!content.startsWith('<h') && !content.startsWith('<li')) {
-                    content = '<p>' + content + '</p>';
+            // ========== 新方案：按行分割，每行单独处理 ==========
+            let lines = markdown.split('\n');
+            let html = '';
+            let inParagraph = false;
+    
+            lines.forEach(line => {
+                // 跳过空行
+                if (line.trim() === '') {
+                    if (inParagraph) {
+                        html += '</p>\n';
+                        inParagraph = false;
+                    }
+                    return;
                 }
-                return content;
-            }).join('');
+        
+                // 处理标题
+                if (line.match(/^# /)) {
+                    if (inParagraph) {
+                        html += '</p>\n';
+                        inParagraph = false;
+                    }
+                    html += line.replace(/^# (.*$)/, '<h1>$1</h1>\n');
+                    return;
+                }
+                if (line.match(/^## /)) {
+                    if (inParagraph) {
+                        html += '</p>\n';
+                        inParagraph = false;
+                    }
+                    html += line.replace(/^## (.*$)/, '<h2>$1</h2>\n');
+                    return;
+                }
+        
+                // 处理列表
+                if (line.match(/^- /)) {
+                    if (inParagraph) {
+                        html += '</p>\n';
+                        inParagraph = false;
+                    }
+                    html += line.replace(/^- (.*$)/, '<li>$1</li>\n');
+                    return;
+                }
+        
+                // 处理普通段落（处理粗体、斜体）
+                let content = line
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>');
+        
+                if (!inParagraph) {
+                    html += '<p>';
+                    inParagraph = true;
+                } else {
+                    html += '<br>';
+                }
+                html += content;
+            });
+    
+            if (inParagraph) {
+                html += '</p>\n';
+            }
+            // ========== 新方案结束 ==========
 
             document.getElementById('tree-container').style.display = 'none';
             document.getElementById('search').style.display = 'none';
-            document.getElementById('breadcrumb').style.display = 'none';
+            document.getElementById('breadcrumb').style.display = 'block';
             document.getElementById('post-content').style.display = 'block';
             document.getElementById('article-body').innerHTML = html;
 
-            // ========== 新增：更新上一篇/下一篇 ==========
             updatePrevNext(filePath);
-            // ========== 新增结束 ==========
         }
 
         // 更新上一篇/下一篇按钮
