@@ -2,8 +2,135 @@
   "categories": [
     {
       "name": "秦彻",
-      "icon": "💎",
+      "icon": "Sylus",
       "children": [
+        {
+          "name": "匿影",
+          "is_folder": true,
+          "children": [
+            {
+              "name": "楔子",
+              "file": "posts/秦彻/匿影/楔子.md",
+              "date": "2026-08-03"
+            },
+            {
+              "name": "C1.影子里的孩子",
+              "file": "posts/秦彻/匿影/影子里的孩子.md",
+              "date": "2026-08-19"
+            }
+          ]
+        },
+        {
+          "name": "洛希极限",
+          "is_folder": true,
+          "children": [
+            {
+              "name": "C1.方舟，移山",
+              "file": "posts/秦彻/洛希极限/方舟，移山.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C2.哥哥",
+              "file": "posts/秦彻/洛希极限/哥哥.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C3.MOSS",
+              "file": "posts/秦彻/洛希极限/MOSS.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C4.以太芯核",
+              "file": "posts/秦彻/洛希极限/以太芯核.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C5.中心控制室",
+              "file": "posts/秦彻/洛希极限/中心控制室.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C6.数字生命研究所",
+              "file": "posts/秦彻/洛希极限/数字生命研究所.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C7.小鱼",
+              "file": "posts/秦彻/洛希极限/小鱼.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C8.技术主义的狂欢",
+              "file": "posts/秦彻/洛希极限/技术主义的狂欢.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C9.证明的意义",
+              "file": "posts/秦彻/洛希极限/证明的意义.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C10.蝰蛇",
+              "file": "posts/秦彻/洛希极限/蝰蛇.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C11.潜入",
+              "file": "posts/秦彻/洛希极限/潜入.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C12.“叛徒”",
+              "file": "posts/秦彻/洛希极限/叛徒.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C13.Caleb",
+              "file": "posts/秦彻/洛希极限/Caleb.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C14.信任",
+              "file": "posts/秦彻/洛希极限/信任.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C15.Sylus",
+              "file": "posts/秦彻/洛希极限/Sylus.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C16.生或死",
+              "file": "posts/秦彻/洛希极限/生或死.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C17.牢笼",
+              "file": "posts/秦彻/洛希极限/牢笼.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C18.妹妹",
+              "file": "posts/秦彻/洛希极限/妹妹.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C19.抉择",
+              "file": "posts/秦彻/洛希极限/抉择.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C20.陨落",
+              "file": "posts/秦彻/洛希极限/陨落.md",
+              "date": "2025-11-25"
+            },
+            {
+              "name": "C21.终序",
+              "file": "posts/秦彻/洛希极限/终序.md",
+              "date": "2025-11-25"
+            }
+          ]
+        },
         {
           "name": "万物生",
           "file": "posts/秦彻/万物生.md",
@@ -233,139 +360,12 @@
           "name": "尘烟",
           "file": "posts/秦彻/尘烟.md",
           "date": "2026-06-24"
-        },
-        {
-          "name": "洛希极限",
-          "is_folder": true,
-          "children": [
-            {
-              "name": "C1.方舟，移山",
-              "file": "posts/秦彻/洛希极限/方舟，移山.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C2.哥哥",
-              "file": "posts/秦彻/洛希极限/哥哥.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C3.MOSS",
-              "file": "posts/秦彻/洛希极限/MOSS.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C4.以太芯核",
-              "file": "posts/秦彻/洛希极限/以太芯核.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C5.中心控制室",
-              "file": "posts/秦彻/洛希极限/中心控制室.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C6.数字生命研究所",
-              "file": "posts/秦彻/洛希极限/数字生命研究所.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C7.小鱼",
-              "file": "posts/秦彻/洛希极限/小鱼.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C8.技术主义的狂欢",
-              "file": "posts/秦彻/洛希极限/技术主义的狂欢.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C9.证明的意义",
-              "file": "posts/秦彻/洛希极限/证明的意义.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C10.蝰蛇",
-              "file": "posts/秦彻/洛希极限/蝰蛇.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C11.潜入",
-              "file": "posts/秦彻/洛希极限/潜入.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C12.“叛徒”",
-              "file": "posts/秦彻/洛希极限/叛徒.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C13.Caleb",
-              "file": "posts/秦彻/洛希极限/Caleb.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C14.信任",
-              "file": "posts/秦彻/洛希极限/信任.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C15.Sylus",
-              "file": "posts/秦彻/洛希极限/Sylus.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C16.生或死",
-              "file": "posts/秦彻/洛希极限/生或死.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C17.牢笼",
-              "file": "posts/秦彻/洛希极限/牢笼.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C18.妹妹",
-              "file": "posts/秦彻/洛希极限/妹妹.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C19.抉择",
-              "file": "posts/秦彻/洛希极限/抉择.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C20.陨落",
-              "file": "posts/秦彻/洛希极限/陨落.md",
-              "date": "2025-11-25"
-            },
-            {
-              "name": "C21.终序",
-              "file": "posts/秦彻/洛希极限/终序.md",
-              "date": "2025-11-25"
-            }
-          ]
-        },
-        {
-          "name": "匿影",
-          "is_folder": true,
-          "children": [
-            {
-              "name": "楔子",
-              "file": "posts/秦彻/匿影/楔子.md",
-              "date": "2026-08-03"
-            },
-            {
-              "name": "C1.影子里的孩子",
-              "file": "posts/秦彻/匿影/影子里的孩子.md",
-              "date": "2026-08-19"
-            }
-          ]
         }
       ]
     },
     {
       "name": "U2",
-      "icon": "⚔️",
+      "icon": " Bedge",
       "children": [
         {
           "name": "Joshua Tree",
