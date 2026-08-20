@@ -30,7 +30,8 @@
         /* 分类卡片 */
         .category-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 0;
+            border: 1px solid #e8e8e8; /* 加上细边框，保持清晰边界 */
             padding: 16px 24px;
             margin-bottom: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -69,7 +70,8 @@
             padding: 10px 16px;
             margin: 6px 0;
             background: #f5f5f5;
-            border-radius: 6px;
+            border-radius: 0;
+            border-bottom: 1px solid #f0f0f0; /* 用下划线分隔，更利落 */
             cursor: pointer;
             transition: 0.15s;
             display: flex;
@@ -176,7 +178,8 @@
             padding: 12px;
             font-size: 16px;
             border: 1px solid #ccc;
-            border-radius: 6px;
+            border-radius: 0;
+            border: 1px solid #ccc;
             box-sizing: border-box;
             margin-bottom: 20px;
             font-family: "宋体", "SimSun", serif;
@@ -242,12 +245,15 @@
                 cursor: pointer;
                 font-size: 15px;
                 padding: 6px 14px;
-                border-radius: 4px;
+                border-radius: 0;
+                padding: 6px 16px;
+                border: 1px solid #ddd;
+                background: #fafafa;
                 transition: 0.15s;
             }
 
                 #post-nav-bottom .nav-btn:hover {
-                    background: #f0f0f0;
+                    background: #eee;
                     text-decoration: underline;
                 }
 
