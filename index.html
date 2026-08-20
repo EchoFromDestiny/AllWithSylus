@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>All With Sylus</title>
     <style>
         @font-face {
@@ -34,14 +37,17 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .category-card:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-        }
+
+            .category-card:hover {
+                box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            }
+
         .category-name {
             font-family: 'MyTitleFont', "宋体", serif;
             font-size: 24px;
             font-weight: 600;
         }
+
         .category-count {
             color: #888;
             font-size: 14px;
@@ -54,9 +60,10 @@
             margin-top: 12px;
             display: none; /* 默认隐藏，点击分类后展开 */
         }
-        .post-tree.open {
-            display: block;
-        }
+
+            .post-tree.open {
+                display: block;
+            }
 
         .tree-item {
             padding: 10px 16px;
@@ -69,42 +76,45 @@
             align-items: center;
             gap: 8px;
         }
-        .tree-item:hover {
-            background: #e8e8e8;
-        }
 
-        .tree-item.folder {
-            background: #eef3ff;
-            font-family: 'MyTitleFont', "宋体", serif;
-            font-size: 18px;
-        }
-        .tree-item.folder:hover {
-            background: #dde6f5;
-        }
+            .tree-item:hover {
+                background: #e8e8e8;
+            }
 
-        .tree-item .indent {
-            display: inline-block;
-            width: 20px;
-        }
+            .tree-item.folder {
+                background: #eef3ff;
+                font-family: 'MyTitleFont', "宋体", serif;
+                font-size: 18px;
+            }
 
-        .tree-item .file-icon {
-            font-size: 18px;
-        }
+                .tree-item.folder:hover {
+                    background: #dde6f5;
+                }
 
-        .tree-item .post-date {
-            color: #888;
-            font-size: 13px;
-            margin-left: auto;
-        }
+            .tree-item .indent {
+                display: inline-block;
+                width: 20px;
+            }
+
+            .tree-item .file-icon {
+                font-size: 18px;
+            }
+
+            .tree-item .post-date {
+                color: #888;
+                font-size: 13px;
+                margin-left: auto;
+            }
 
         /* 子列表 */
         .tree-children {
             margin-left: 30px;
             display: none;
         }
-        .tree-children.open {
-            display: block;
-        }
+
+            .tree-children.open {
+                display: block;
+            }
 
         /* 文章正文显示区 */
         #post-content {
@@ -116,6 +126,7 @@
             display: none;
             margin-top: 20px;
         }
+
         #back-btn {
             display: inline-block;
             margin-bottom: 16px;
@@ -123,9 +134,11 @@
             cursor: pointer;
             font-size: 16px;
         }
-        #back-btn:hover {
-            text-decoration: underline;
-        }
+
+            #back-btn:hover {
+                text-decoration: underline;
+            }
+
         #article-body {
             font-family: "宋体", "SimSun", serif;
             line-height: 1.8;
@@ -155,22 +168,26 @@
             margin-bottom: 12px;
             padding: 8px 0;
         }
-        #breadcrumb span {
-            cursor: pointer;
-            color: #1a0dab;
-        }
-        #breadcrumb span:hover {
-            text-decoration: underline;
-        }
+
+            #breadcrumb span {
+                cursor: pointer;
+                color: #1a0dab;
+            }
+
+                #breadcrumb span:hover {
+                    text-decoration: underline;
+                }
+
         .breadcrumb-link {
             color: #1a0dab;
             cursor: pointer;
             text-decoration: underline;
             text-underline-offset: 2px;
         }
-        .breadcrumb-link:hover {
-            color: #ff6b00;
-        }
+
+            .breadcrumb-link:hover {
+                color: #ff6b00;
+            }
         /* 文章顶部导航 */
         #post-nav-top {
             display: flex;
@@ -420,13 +437,23 @@
             const res = await fetch(filePath);
             const markdown = await res.text();
 
-            let html = markdown
-                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/^- (.*$)/gim, '<li>$1</li>')
-                .replace(/\n/g, '<br>');
+            // 先按空行分段，再处理其他格式
+            let paragraphs = markdown.split(/\n\s*\n/); // 按空行分割
+            let html = paragraphs.map(para => {
+                // 处理每一段内的格式
+                let content = para
+                    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/^- (.*$)/gim, '<li>$1</li>')
+                    .replace(/\n/g, '<br>');
+                // 如果不是标题或列表，用 <p> 包起来
+                if (!content.startsWith('<h') && !content.startsWith('<li')) {
+                    content = '<p>' + content + '</p>';
+                }
+                return content;
+            }).join('');
 
             document.getElementById('tree-container').style.display = 'none';
             document.getElementById('search').style.display = 'none';
