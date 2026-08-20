@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
@@ -126,6 +126,15 @@
         #back-btn:hover {
             text-decoration: underline;
         }
+        #article-body {
+            font-family: "宋体", "SimSun", serif;
+            line-height: 1.8;
+        }
+
+            #article-body p {
+                text-indent: 2em;
+                margin: 0.8em 0;
+            }
 
         /* 搜索框 */
         #search {
@@ -153,6 +162,81 @@
         #breadcrumb span:hover {
             text-decoration: underline;
         }
+        .breadcrumb-link {
+            color: #1a0dab;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .breadcrumb-link:hover {
+            color: #ff6b00;
+        }
+        /* 文章顶部导航 */
+        #post-nav-top {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+            #post-nav-top span {
+                color: #1a0dab;
+                cursor: pointer;
+            }
+
+                #post-nav-top span:hover {
+                    text-decoration: underline;
+                }
+
+        /* 文章底部导航 */
+        #post-nav-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+            #post-nav-bottom .nav-btn {
+                color: #1a0dab;
+                cursor: pointer;
+                font-size: 15px;
+                padding: 6px 14px;
+                border-radius: 4px;
+                transition: 0.15s;
+            }
+
+                #post-nav-bottom .nav-btn:hover {
+                    background: #f0f0f0;
+                    text-decoration: underline;
+                }
+
+                #post-nav-bottom .nav-btn.disabled {
+                    color: #ccc;
+                    cursor: not-allowed;
+                    pointer-events: none;
+                }
+
+        #back-to-level {
+            color: #888 !important;
+            font-size: 14px !important;
+        }
+
+            #back-to-level:hover {
+                color: #1a0dab !important;
+            }
+        /* 底部版权声明 */
+        #footer {
+            text-align: center;
+            font-size: 13px;
+            color: #999;
+            padding: 30px 0 20px 0;
+            border-top: 1px solid #eee;
+            margin-top: 40px;
+            font-family: 'MyTitleFont', "SimSun", serif;
+        }
     </style>
 </head>
 <body>
@@ -163,15 +247,30 @@
     <input type="text" id="search" placeholder="搜索文章标题...">
 
     <!-- 导航路径 -->
-    <div id="breadcrumb">首页</div>
+    <<!-- 导航路径 -->
+    <div id="breadcrumb">
+        <span id="home-btn" style="cursor:pointer;color:#1a0dab;font-weight:600;">首页</span>
+        <span id="breadcrumb-path"></span>
+    </div>
 
     <!-- 文章树 -->
     <div id="tree-container"></div>
 
     <!-- 文章正文 -->
+    <!-- 文章正文 -->
     <div id="post-content">
-        <div id="back-btn">← 返回列表</div>
+        <div id="post-nav-top">
+            <span id="back-btn">← 返回列表</span>
+            <span id="home-btn-from-article">首页</span>
+        </div>
         <div id="article-body"></div>
+        <!-- ========== 新增：文章底部导航 ========== -->
+        <div id="post-nav-bottom">
+            <span id="prev-article" class="nav-btn">≪ 上一篇</span>
+            <span id="back-to-level" class="nav-btn">返回上一级</span>
+            <span id="next-article" class="nav-btn">下一篇 ≫</span>
+        </div>
+        <!-- ========== 新增结束 ========== -->
     </div>
 
     <script>
@@ -181,111 +280,139 @@
 
         // 加载数据
         async function loadData() {
-            const res = await fetch('posts.json');
-            allData = await res.json();
-            return allData;
+        const res = await fetch('posts.json');
+        allData = await res.json();
+        return allData;
         }
 
         // 渲染树（根据当前路径）
         function renderTree(path) {
-            const container = document.getElementById('tree-container');
-            container.innerHTML = '';
+        //保存当前路径，供返回上一级使用
+        window.currentLevelPath = path;
 
-            // 找到当前层级的数据
-            let currentLevel = allData.categories;
-            let breadcrumbText = '首页';
-            
-            if (path.length > 0) {
-                // 根据路径找到对应的子节点
-                let temp = allData.categories;
-                for (let i = 0; i < path.length; i++) {
-                    const found = temp.find(item => item.name === path[i]);
-                    if (found && found.children) {
-                        temp = found.children;
-                        breadcrumbText += ' / ' + path[i];
-                    } else {
-                        // 如果路径不存在，回到根
-                        path = [];
-                        currentLevel = allData.categories;
-                        breadcrumbText = '首页';
-                        break;
-                    }
-                }
-                if (path.length > 0) {
-                    currentLevel = temp;
-                }
-            }
+        const container = document.getElementById('tree-container');
+        container.innerHTML = '';
 
-            // 更新面包屑
-            document.getElementById('breadcrumb').innerHTML = breadcrumbText;
+        // 找到当前层级的数据
+        let currentLevel = allData.categories;
+        let breadcrumbText = '首页';
 
-            // 如果当前层级是文章列表（没有 children 或 children 都是文件）
-            const hasFolder = currentLevel.some(item => item.children);
-            const hasFile = currentLevel.some(item => item.file);
+        if (path.length > 0) {
+        // 根据路径找到对应的子节点
+        let temp = allData.categories;
+        for (let i = 0; i < path.length; i++) {
+        const found = temp.find(item => item.name === path[i]);
+        if (found && found.children) {
+        temp = found.children;
+        breadcrumbText += ' / ' + path[i];
+        } else {
+        // 如果路径不存在，回到根
+        path = [];
+        currentLevel = allData.categories;
+        breadcrumbText = '首页';
+        break;
+        }
+        }
+        if (path.length > 0) {
+        currentLevel = temp;
+        }
+        }
 
-            if (hasFile && !hasFolder) {
-                // 全是文章，直接显示列表
-                currentLevel.forEach(item => {
-                    if (item.file) {
-                        const div = createFileItem(item);
-                        container.appendChild(div);
-                    }
-                });
-            } else {
-                // 有分类/文件夹，显示可展开的树
-                currentLevel.forEach(item => {
-                    if (item.children) {
-                        // 这是一个分类或文件夹
-                        const div = createFolderItem(item, path);
-                        container.appendChild(div);
-                    } else if (item.file) {
-                        // 这是单独的文章
-                        const div = createFileItem(item);
-                        container.appendChild(div);
-                    }
-                });
-            }
+        // 更新面包屑（每一级都可点击返回）
+        const homeBtn = document.getElementById('home-btn');
+        const pathSpan = document.getElementById('breadcrumb-path');
+
+        if (path.length === 0) {
+        pathSpan.innerHTML = '';
+        } else {
+        // 生成每一级的可点击链接
+        let html = '';
+        path.forEach((name, index) => {
+        // 构建点击后要返回的路径（从开头到当前这一级）
+        const targetPath = path.slice(0, index + 1);
+        // 用 data-path 属性存储路径，用逗号连接
+        html += ` / <span class="breadcrumb-link" data-path="${targetPath.join(',')}">${name}</span>`;
+        });
+        pathSpan.innerHTML = html;
+
+        // 为所有面包屑链接绑定点击事件
+        document.querySelectorAll('.breadcrumb-link').forEach(link => {
+        link.addEventListener('click', function() {
+        const pathStr = this.getAttribute('data-path');
+        const targetPath = pathStr ? pathStr.split(',') : [];
+        currentPath = targetPath;
+        renderTree(targetPath);
+        });
+        });
+        }
+
+        // 如果当前层级是文章列表（没有 children 或 children 都是文件）
+        const hasFolder = currentLevel.some(item => item.children);
+        const hasFile = currentLevel.some(item => item.file);
+
+        if (hasFile && !hasFolder) {
+        // 全是文章，直接显示列表
+        currentLevel.forEach(item => {
+        if (item.file) {
+        const div = createFileItem(item);
+        container.appendChild(div);
+        }
+        });
+        } else {
+        // 有分类/文件夹，显示可展开的树
+        currentLevel.forEach(item => {
+        if (item.children) {
+        // 这是一个分类或文件夹
+        const div = createFolderItem(item, path);
+        container.appendChild(div);
+        } else if (item.file) {
+        // 这是单独的文章
+        const div = createFileItem(item);
+        container.appendChild(div);
+        }
+        });
+        }
         }
 
         // 创建文件夹/分类元素
         function createFolderItem(item, parentPath) {
-            const div = document.createElement('div');
-            div.className = 'tree-item folder';
-            
-            const isRootCategory = parentPath.length === 0;
-            const icon = item.icon || (isRootCategory ? '📁' : '📂');
-            
-            div.innerHTML = `
-                <span class="file-icon">${icon}</span>
-                <span style="font-weight:600;">${item.name}</span>
-                <span class="post-date">${item.children ? item.children.length : 0} 篇</span>
-            `;
+        const div = document.createElement('div');
+        div.className = 'tree-item folder';
 
-            div.addEventListener('click', () => {
-                // 进入这个分类/文件夹
-                const newPath = [...parentPath, item.name];
-                currentPath = newPath;
-                renderTree(newPath);
-            });
+        const isRootCategory = parentPath.length === 0;
+        const icon = item.icon || (isRootCategory ? '📁' : '📂');
 
-            return div;
+        div.innerHTML = `
+        <span class="file-icon">${icon}</span>
+        <span style="font-weight:600;">${item.name}</span>
+        <span class="post-date">${item.children ? item.children.length : 0} 篇</span>
+        `;
+
+        div.addEventListener('click', () => {
+        // 进入这个分类/文件夹
+        const newPath = [...parentPath, item.name];
+        currentPath = newPath;
+        renderTree(newPath);
+        });
+
+        return div;
         }
 
         // 创建文章元素
         function createFileItem(item) {
-            const div = document.createElement('div');
-            div.className = 'tree-item';
-            div.innerHTML = `
-                <span class="file-icon">📄</span>
-                <span>${item.name}</span>
-                <span class="post-date">${item.date || ''}</span>
-            `;
+        const div = document.createElement('div');
+        div.className = 'tree-item';
+        div.innerHTML = `
+        <span class="file-icon">📄</span>
+        <span>${item.name}</span>
+        <span class="post-date">${item.date || ''}</span>
+        `;
 
-            div.addEventListener('click', () => {
-                loadAndShowArticle(item.file);
-            });
+        div.addEventListener('click', () => {
+        loadAndShowArticle(item.file);
+        });
 
-            return div;
+        return div;
         }
 
         // 加载并显示文章
@@ -306,60 +433,138 @@
             document.getElementById('breadcrumb').style.display = 'none';
             document.getElementById('post-content').style.display = 'block';
             document.getElementById('article-body').innerHTML = html;
+
+            // ========== 新增：更新上一篇/下一篇 ==========
+            updatePrevNext(filePath);
+            // ========== 新增结束 ==========
+        }
+
+        // 更新上一篇/下一篇按钮
+        function updatePrevNext(currentFile) {
+            // 获取当前层级的所有文章（扁平化）
+            let currentLevel = allData.categories;
+            let targetPath = window.currentLevelPath || [];
+    
+            // 根据路径找到当前层级
+            if (targetPath.length > 0) {
+                let temp = allData.categories;
+                for (let i = 0; i < targetPath.length; i++) {
+                    const found = temp.find(item => item.name === targetPath[i]);
+                    if (found && found.children) {
+                        temp = found.children;
+                    } else {
+                        break;
+                    }
+                }
+                currentLevel = temp;
+            }
+    
+            // 提取该层级下所有文章（包括子文件夹里的）
+            function getAllArticles(items) {
+                let result = [];
+                items.forEach(item => {
+                    if (item.file) {
+                        result.push(item);
+                    }
+                    if (item.children) {
+                        result = result.concat(getAllArticles(item.children));
+                    }
+                });
+                return result;
+            }
+    
+            const articles = getAllArticles(currentLevel);
+    
+            // 找到当前文章的索引
+            const currentIndex = articles.findIndex(item => item.file === currentFile);
+    
+            const prevBtn = document.getElementById('prev-article');
+            const nextBtn = document.getElementById('next-article');
+    
+            // 设置上一篇
+            if (currentIndex > 0) {
+                const prevArticle = articles[currentIndex - 1];
+                prevBtn.textContent = '← ' + prevArticle.name;
+                prevBtn.className = 'nav-btn';
+                prevBtn.onclick = function() {
+                    loadAndShowArticle(prevArticle.file);
+                };
+            } else {
+                prevBtn.textContent = '← 已是第一篇';
+                prevBtn.className = 'nav-btn disabled';
+                prevBtn.onclick = null;
+            }
+    
+            // 设置下一篇
+            if (currentIndex < articles.length - 1) {
+                const nextArticle = articles[currentIndex + 1];
+                nextBtn.textContent = nextArticle.name + ' →';
+                nextBtn.className = 'nav-btn';
+                nextBtn.onclick = function() {
+                    loadAndShowArticle(nextArticle.file);
+                };
+            } else {
+                nextBtn.textContent = '已是最后一篇 →';
+                nextBtn.className = 'nav-btn disabled';
+                nextBtn.onclick = null;
+            }
         }
 
         // 返回列表
         document.getElementById('back-btn').addEventListener('click', () => {
-            document.getElementById('tree-container').style.display = 'block';
-            document.getElementById('search').style.display = 'block';
-            document.getElementById('breadcrumb').style.display = 'block';
-            document.getElementById('post-content').style.display = 'none';
-            renderTree(currentPath); // 重新渲染当前路径
-        });
+        document.getElementById('tree-container').style.display = 'block';
+        document.getElementById('search').style.display = 'block';
+        document.getElementById('breadcrumb').style.display = 'block';
+        document.getElementById('post-content').style.display = 'none';
+        // 回到进入文章前的层级
+        const targetPath = window.currentLevelPath || [];
+        currentPath = targetPath;
+        renderTree(targetPath);
+    });
 
         // 搜索功能（扁平化搜索所有文章）
         function flattenTree(items, path = []) {
-            let result = [];
-            items.forEach(item => {
-                if (item.file) {
-                    result.push({ ...item, path: [...path, item.name] });
-                }
-                if (item.children) {
-                    result = result.concat(flattenTree(item.children, [...path, item.name]));
-                }
-            });
-            return result;
+        let result = [];
+        items.forEach(item => {
+        if (item.file) {
+        result.push({ ...item, path: [...path, item.name] });
+        }
+        if (item.children) {
+        result = result.concat(flattenTree(item.children, [...path, item.name]));
+        }
+        });
+        return result;
         }
 
         document.getElementById('search').addEventListener('input', function(e) {
-            const keyword = e.target.value.trim();
-            const container = document.getElementById('tree-container');
-            container.innerHTML = '';
+        const keyword = e.target.value.trim();
+        const container = document.getElementById('tree-container');
+        container.innerHTML = '';
 
-            if (!keyword) {
-                // 没有搜索词，显示正常树
-                renderTree(currentPath);
-                return;
-            }
+        if (!keyword) {
+        // 没有搜索词，显示正常树
+        renderTree(currentPath);
+        return;
+        }
 
-            // 扁平化所有文章
-            const allArticles = flattenTree(allData.categories);
-            const filtered = allArticles.filter(item => 
-                item.name.includes(keyword) || item.path.some(p => p.includes(keyword))
-            );
+        // 扁平化所有文章
+        const allArticles = flattenTree(allData.categories);
+        const filtered = allArticles.filter(item =>
+        item.name.includes(keyword) || item.path.some(p => p.includes(keyword))
+        );
 
-            if (filtered.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:#888;padding:40px;">没有找到相关文章</div>';
-                return;
-            }
+        if (filtered.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:#888;padding:40px;">没有找到相关文章</div>';
+        return;
+        }
 
-            filtered.forEach(item => {
-                const div = createFileItem(item);
-                // 显示路径信息
-                const pathStr = item.path.slice(0, -1).join(' / ');
-                div.innerHTML += `<span style="color:#999;font-size:12px;margin-left:8px;">(${pathStr})</span>`;
-                container.appendChild(div);
-            });
+        filtered.forEach(item => {
+        const div = createFileItem(item);
+        // 显示路径信息
+        const pathStr = item.path.slice(0, -1).join(' / ');
+        div.innerHTML += `<span style="color:#999;font-size:12px;margin-left:8px;">(${pathStr})</span>`;
+        container.appendChild(div);
+        });
         });
 
         // 初始化
@@ -367,9 +572,38 @@
             await loadData();
             currentPath = [];
             renderTree([]);
+    
+            // 绑定首页按钮
+            document.getElementById('home-btn').addEventListener('click', function() {
+                currentPath = [];
+                renderTree([]);
+            });
+    
+            // ========== 新增：绑定"返回上一级"按钮 ==========
+            document.getElementById('back-to-level').addEventListener('click', function() {
+                // 关闭文章视图，回到列表
+                document.getElementById('tree-container').style.display = 'block';
+                document.getElementById('search').style.display = 'block';
+                document.getElementById('breadcrumb').style.display = 'block';
+                document.getElementById('post-content').style.display = 'none';
+        
+                // 返回到当前层级
+                const targetPath = window.currentLevelPath || [];
+                currentPath = targetPath;
+                renderTree(targetPath);
+            });
+            // ========== 新增结束 ==========
         }
 
+init();
+
         init();
+        // 自动更新版权年份
+        document.getElementById('current-year').textContent = new Date().getFullYear();
     </script>
+    <!-- 版权声明 -->
+    <div id="footer">
+        <p>© Copyright EchoFromDestiny 2025-<span id="current-year"></span></p>
+    </div>
 </body>
 </html>
