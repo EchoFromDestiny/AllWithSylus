@@ -134,7 +134,7 @@ async function loadAndShowArticle(filePath) {
     const articleBody = document.getElementById('article-body');
     const postNavBottom = document.getElementById('post-nav-bottom');
     
-    loadingEl.style.display = 'block';
+    loadingEl.style.display = 'flex';
     articleBody.style.display = 'none';
     postNavBottom.style.display = 'none';
 
