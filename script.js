@@ -129,6 +129,16 @@ function createFileItem(item) {
 
 // 加载并显示文章
 async function loadAndShowArticle(filePath) {
+    // ========== 显示加载提示，隐藏正文 ==========
+    const loadingEl = document.getElementById('loading-placeholder');
+    const articleBody = document.getElementById('article-body');
+    const postNavBottom = document.getElementById('post-nav-bottom');
+    
+    loadingEl.style.display = 'block';
+    articleBody.style.display = 'none';
+    postNavBottom.style.display = 'none';
+
+    //实际显示正文
     const res = await fetch(filePath);
     const markdown = await res.text();
 
@@ -168,6 +178,12 @@ async function loadAndShowArticle(filePath) {
         html += '<p>' + content + '</p>\n';
     });
 
+    //隐藏加载提示，显示正文
+    loadingEl.style.display = 'none';
+    articleBody.style.display = 'block';
+    postNavBottom.style.display = 'flex';
+    //隐藏结束
+    
     document.getElementById('tree-container').style.display = 'none';
     document.getElementById('search').style.display = 'none';
     document.getElementById('breadcrumb').style.display = 'block';
