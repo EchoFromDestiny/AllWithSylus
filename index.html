@@ -144,9 +144,30 @@
             line-height: 1.8;
         }
 
+            /* 每个段落首行缩进 2 字符 */
             #article-body p {
                 text-indent: 2em;
-                margin: 0.8em 0;
+                margin: 0.3em 0;
+            }
+
+            /* 标题、列表不缩进 */
+            #article-body h1,
+            #article-body h2,
+            #article-body h3,
+            #article-body li {
+                text-indent: 0;
+                margin: 0.5em 0;
+            }
+
+            /* 分隔线 */
+            #article-body hr {
+                border: none;
+                border-top: 1px solid #ddd;
+                margin: 1.5em 0;
+            }
+            /* 题记居右 */
+            #article-body p:has(> .quote) {
+                text-align: right;
             }
 
         /* 搜索框 */
@@ -437,66 +458,48 @@
             const res = await fetch(filePath);
             const markdown = await res.text();
 
-            // ========== 新方案：按行分割，每行单独处理 ==========
+            // ========== 按行分割，每行独立成段 ==========
             let lines = markdown.split('\n');
             let html = '';
-            let inParagraph = false;
     
             lines.forEach(line => {
+                let trimmed = line.trim();
+        
                 // 跳过空行
-                if (line.trim() === '') {
-                    if (inParagraph) {
-                        html += '</p>\n';
-                        inParagraph = false;
-                    }
+                if (trimmed === '') {
                     return;
                 }
         
-                // 处理标题
-                if (line.match(/^# /)) {
-                    if (inParagraph) {
-                        html += '</p>\n';
-                        inParagraph = false;
-                    }
-                    html += line.replace(/^# (.*$)/, '<h1>$1</h1>\n');
+                // 处理标题（# 开头）
+                if (trimmed.match(/^# /)) {
+                    html += trimmed.replace(/^# (.*$)/, '<h1>$1</h1>\n');
                     return;
                 }
-                if (line.match(/^## /)) {
-                    if (inParagraph) {
-                        html += '</p>\n';
-                        inParagraph = false;
-                    }
-                    html += line.replace(/^## (.*$)/, '<h2>$1</h2>\n');
+                if (trimmed.match(/^## /)) {
+                    html += trimmed.replace(/^## (.*$)/, '<h2>$1</h2>\n');
                     return;
                 }
         
-                // 处理列表
-                if (line.match(/^- /)) {
-                    if (inParagraph) {
-                        html += '</p>\n';
-                        inParagraph = false;
-                    }
-                    html += line.replace(/^- (.*$)/, '<li>$1</li>\n');
+                // 处理列表（- 开头）
+                if (trimmed.match(/^- /)) {
+                    html += trimmed.replace(/^- (.*$)/, '<li>$1</li>\n');
                     return;
                 }
         
-                // 处理普通段落（处理粗体、斜体）
+                // 处理分隔线（--- 单独一行）
+                if (trimmed === '---') {
+                    html += '<hr>\n';
+                    return;
+                }
+        
+                // 处理普通段落：每一行独立成 <p>
                 let content = line
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                     .replace(/\*(.*?)\*/g, '<em>$1</em>');
         
-                if (!inParagraph) {
-                    html += '<p>';
-                    inParagraph = true;
-                } else {
-                    html += '<br>';
-                }
-                html += content;
+                // 保留行首空格（制表符）
+                html += '<p>' + content + '</p>\n';
             });
-    
-            if (inParagraph) {
-                html += '</p>\n';
-            }
             // ========== 新方案结束 ==========
 
             document.getElementById('tree-container').style.display = 'none';
