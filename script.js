@@ -151,11 +151,14 @@ async function loadAndShowArticle(filePath) {
 
     lines.forEach(line => {
         let trimmed = line.trim();
+        let content = line;  // 保留原始行内容（含缩进空格）
 
+        // 跳过空行
         if (trimmed === '') {
             return;
         }
 
+        // 处理标题（# 开头）
         if (trimmed.match(/^# /)) {
             html += trimmed.replace(/^# (.*$)/, '<h1>$1</h1>\n');
             return;
@@ -165,21 +168,45 @@ async function loadAndShowArticle(filePath) {
             return;
         }
 
+        // 处理列表（- 开头）
         if (trimmed.match(/^- /)) {
             html += trimmed.replace(/^- (.*$)/, '<li>$1</li>\n');
             return;
         }
 
+        // 处理分隔线（--- 单独一行）
         if (trimmed === '---') {
             html += '<hr>\n';
             return;
         }
 
-        let content = line
+        // ========== 识别题记 ==========
+        // 如果行内容以 "——" 或 "—" 开头（常见题记格式）
+        if (trimmed.match(/^[—\-–]/) || trimmed.match(/^[——]/)) {
+            // 处理粗体和斜体
+            let contentWithFormat = line
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>');
+            // 用专门的 class 包裹，不缩进
+            html += `<p class="epigraph">${contentWithFormat}</p>\n`;
+            return;
+        }
+
+        // 检查是否包含题记关键词（可选：如果行里有"——题记"这样的）
+        if (trimmed.includes('题记') || trimmed.includes('——')) {
+            let contentWithFormat = line
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>');
+            html += `<p class="epigraph">${contentWithFormat}</p>\n`;
+            return;
+        }
+
+        // ========== 普通段落（正常缩进） ==========
+        let contentWithFormat = line
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>');
 
-        html += '<p>' + content + '</p>\n';
+        html += '<p>' + contentWithFormat + '</p>\n';
     });
 
     //隐藏加载提示，显示正文
