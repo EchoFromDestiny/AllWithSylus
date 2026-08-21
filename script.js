@@ -1,5 +1,6 @@
 let allData = null;
 let currentPath = []; // 当前导航路径
+let savedScrollPosition = 0;//保存滚动位置
 
 // 加载数据
 async function loadData() {
@@ -121,6 +122,7 @@ function createFileItem(item) {
     `;
 
     div.addEventListener('click', () => {
+        savedScrollPosition = window.scrollY;//记录滚动位置
         loadAndShowArticle(item.file);
     });
 
@@ -257,8 +259,8 @@ function updatePrevNext(currentFile) {
     }
 }
 
-// 返回列表
-document.getElementById('back-btn').addEventListener('click', () => {
+    // 返回列表
+    document.getElementById('back-btn').addEventListener('click', () => {
     document.getElementById('tree-container').style.display = 'block';
     document.getElementById('search').style.display = 'block';
     document.getElementById('breadcrumb').style.display = 'block';
@@ -266,6 +268,8 @@ document.getElementById('back-btn').addEventListener('click', () => {
     const targetPath = window.currentLevelPath || [];
     currentPath = targetPath;
     renderTree(targetPath);
+    //恢复滚动位置
+    window.scrollTo({ top: savedScrollPosition, behavior: 'instant'});
 });
 
 // 搜索功能（扁平化搜索所有文章）
@@ -319,6 +323,8 @@ async function init() {
     document.getElementById('home-btn').addEventListener('click', function() {
         currentPath = [];
         renderTree([]);
+        //恢复滚动位置
+        window.scrollTo({ top: savedScrollPosition, behavior: 'instant' });
     });
 
     document.getElementById('back-to-level').addEventListener('click', function() {
@@ -329,6 +335,8 @@ async function init() {
         const targetPath = window.currentLevelPath || [];
         currentPath = targetPath;
         renderTree(targetPath);
+        //恢复滚动位置
+        window.scrollTo({ top: savedScrollPosition, behavior: 'instant' });
     });
 
     // 自动更新版权年份
