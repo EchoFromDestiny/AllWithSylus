@@ -179,17 +179,6 @@
                   font-style: italic;
                   margin: 0.5em 0;
             }
-              /* 普通段落：保留原文缩进，自动换行 */
-              #article-body p.keep-indent {
-                  white-space: pre-wrap;
-                  word-wrap: break-word;
-                  margin: 0.3em 0;          /* 正常段落间距 */
-              }
-              
-              /* 相邻段落（没有空行分隔）用更小的间距 */
-              #article-body p.keep-indent.compact {
-                  margin: 0.1em 0;          /* 更紧凑，看起来像同一段内的换行 */
-              }
         
         /* 搜索框 */
         #search {
