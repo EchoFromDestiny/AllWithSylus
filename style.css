@@ -18,7 +18,7 @@
        #search,
        #breadcrumb,
        #control-panel {
-           background: rgba(255, 255, 255, 0.92);
+           background: rgba(255, 255, 255, 0.80);
            backdrop-filter: blur(2px);
            border: 1px solid rgba(255, 255, 255, 0.2);
        }
