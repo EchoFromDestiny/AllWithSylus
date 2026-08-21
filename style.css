@@ -183,33 +183,199 @@
             font-family: "宋体", "SimSun", serif;
         }
 
-        /* 导航路径 */
-        #breadcrumb {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 12px;
-            padding: 8px 0;
-        }
-        
-            #breadcrumb span {
-                cursor: pointer;
-                color: #1a0dab;
-            }
-        
-                #breadcrumb span:hover {
-                    text-decoration: underline;
-                }
-        
-        .breadcrumb-link {
-            color: #1a0dab;
-            cursor: pointer;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-        }
-        
-            .breadcrumb-link:hover {
-                color: #ff6b00;
-            }
+        /* 导航路径 - 改为 flex 左右布局 */
+       #breadcrumb {
+           font-size: 14px;
+           color: #888;
+           margin-bottom: 12px;
+           padding: 8px 0;
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           flex-wrap: wrap;
+           gap: 8px 12px;
+       }
+       
+       .breadcrumb-left {
+           display: flex;
+           align-items: center;
+           flex-wrap: wrap;
+           gap: 4px;
+       }
+       
+       #breadcrumb span {
+           cursor: pointer;
+           color: #1a0dab;
+       }
+       #breadcrumb span:hover {
+           text-decoration: underline;
+       }
+       
+       .breadcrumb-link {
+           color: #1a0dab;
+           cursor: pointer;
+           text-decoration: underline;
+           text-underline-offset: 2px;
+       }
+       .breadcrumb-link:hover {
+           color: #ff6b00;
+       }
+       
+       /* ========== 切换按钮（放在面包屑右侧） ========== */
+       #theme-toggle {
+           padding: 4px 14px;
+           border: 1px solid #ddd;
+           background: white;
+           cursor: pointer;
+           font-size: 13px;
+           font-family: "Times New Roman", "宋体", "SimSun", serif;
+           transition: 0.15s;
+           border-radius: 0;
+           white-space: nowrap;
+           flex-shrink: 0;
+       }
+       #theme-toggle:hover {
+           background: #f0f0f0;
+       }
+              
+       /* ========== 遮罩层 ========== */
+       #panel-overlay {
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background: rgba(0,0,0,0.4);
+           z-index: 998;
+       }
+       
+       /* ========== 悬浮面板 ========== */
+       #theme-panel {
+           position: fixed;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+           background: white;
+           border: 1px solid #e0e0e0;
+           padding: 0;
+           z-index: 999;
+           width: 480px;
+           max-width: 92vw;
+           max-height: 80vh;
+           overflow-y: auto;
+           box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+           font-family: "Times New Roman", "宋体", "SimSun", serif;
+       }
+       
+       .panel-header {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           padding: 14px 20px;
+           border-bottom: 1px solid #eee;
+           font-size: 16px;
+           font-weight: 600;
+           background: #fafafa;
+       }
+       #panel-close {
+           background: none;
+           border: none;
+           font-size: 22px;
+           cursor: pointer;
+           color: #999;
+           padding: 0 4px;
+           line-height: 1;
+       }
+       #panel-close:hover {
+           color: #333;
+       }
+       
+       .panel-body {
+           padding: 20px;
+       }
+       
+       .panel-section {
+           margin-bottom: 18px;
+       }
+       .panel-section:last-child {
+           margin-bottom: 0;
+       }
+       .panel-section label {
+           display: block;
+           font-weight: 600;
+           font-size: 14px;
+           color: #555;
+           margin-bottom: 10px;
+       }
+       
+       /* 背景小图网格：8 张图排成 4 列 */
+       .bg-grid {
+           display: grid;
+           grid-template-columns: repeat(4, 1fr);
+           gap: 10px;
+       }
+       .bg-option {
+           display: flex;
+           flex-direction: column;
+           align-items: center;
+           cursor: pointer;
+           padding: 4px 0;
+           border: 3px solid transparent;
+           transition: 0.15s;
+           border-radius: 2px;
+       }
+       .bg-option:hover {
+           border-color: #ccc;
+       }
+       .bg-option.active {
+           border-color: #1a0dab;
+           background: #f5f3ff;
+       }
+       .bg-thumb {
+           width: 100%;
+           aspect-ratio: 16 / 10;
+           background-size: cover;
+           background-position: center;
+           border: 1px solid #e0e0e0;
+           border-radius: 2px;
+           margin-bottom: 4px;
+       }
+       .bg-option span {
+           font-size: 12px;
+           color: #666;
+       }
+       
+       /* 透明度滑块 */
+       #opacity-slider {
+           width: 100%;
+           cursor: pointer;
+           accent-color: #1a0dab;
+           margin-top: 4px;
+       }
+       #opacity-value-panel {
+           font-weight: 600;
+           color: #1a0dab;
+       }
+       
+       /* 背景图片样式 */
+       body.bg-image {
+           background-size: cover;
+           background-position: center;
+           background-attachment: fixed;
+           background-repeat: no-repeat;
+       }
+       
+       /* 文章正文透明度 */
+       #post-content {
+           transition: background-color 0.25s ease;
+       }
+       
+       /* 移动端适配 */
+       @media (max-width: 500px) {
+           .bg-grid {
+               grid-template-columns: repeat(3, 1fr);
+           }
+       }
 
         /* 文章顶部导航 */
         #post-nav-top {
