@@ -13,6 +13,31 @@
 <body>
 
     <h1>文章列表</h1>
+    
+    <!-- ========== 悬浮面板 ========== -->
+    <div id="theme-panel" style="display:none;">
+        <div class="panel-header">
+            <span>🎨 背景与透明度</span>
+            <button id="panel-close">✕</button>
+        </div>
+        <div class="panel-body">
+            <!-- 预设背景 -->
+            <div class="panel-section">
+                <label>背景图</label>
+                <div class="bg-grid" id="bg-grid">
+                    <!-- 由 JavaScript 动态生成 -->
+                </div>
+            </div>
+            <!-- 透明度 -->
+            <div class="panel-section">
+                <label>透明度 <span id="opacity-value-panel">100%</span></label>
+                <input type="range" id="opacity-slider" min="50" max="100" value="100">
+            </div>
+        </div>
+    </div>
+    
+    <!-- 遮罩层 -->
+    <div id="panel-overlay" style="display:none;"></div>
 
     <!-- 搜索框 -->
     <input type="text" id="search" placeholder="搜索文章标题...">
@@ -21,6 +46,8 @@
     <div id="breadcrumb">
         <span id="home-btn" style="cursor:pointer;color:#1a0dab;font-weight:600;">首页</span>
         <span id="breadcrumb-path"></span>
+    </div>
+        <button id="theme-toggle">🎨选择背景</button>
     </div>
 
     <!-- 文章树 -->
