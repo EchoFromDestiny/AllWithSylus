@@ -131,6 +131,8 @@ function createFileItem(item) {
 
 // 加载并显示文章
 async function loadAndShowArticle(filePath) {
+    //进入文章滚动至顶部
+    window.scrollTo(0,0);
     // ========== 显示加载提示，隐藏正文 ==========
     const loadingEl = document.getElementById('loading-placeholder');
     const articleBody = document.getElementById('article-body');
