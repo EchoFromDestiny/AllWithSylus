@@ -3,10 +3,26 @@
             max-width: 900px;
             margin: 40px auto;
             padding: 0 20px;
-            background: #f9f9f9;
+            background-image: url('images/bg.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
             color: #222;
         }
-        
+       /*卡片及正文区域半透明*/
+        .category-card,
+       #post-content,
+       #post-nav-top,
+       #post-nav-bottom,
+       #search,
+       #breadcrumb,
+       #control-panel {
+           background: rgba(255, 255, 255, 0.92);
+           backdrop-filter: blur(2px);
+           border: 1px solid rgba(255, 255, 255, 0.2);
+       }
+                      
         h1, h2, h3, h4, h5, h6 {
             font-family: "Times New Roman", "宋体", "Simsum", serif;
             font-size: 32px;
