@@ -148,10 +148,8 @@ async function loadAndShowArticle(filePath) {
 
     let lines = markdown.split('\n');
     let html = '';
-    let inParagraph = false;
-    let isPrevLineEmpty = false;
 
-    lines.forEach((line, index) => {
+    lines.forEach(line => {
         let trimmed = line.trim();
         let content = line;  // 保留原始行内容（含缩进空格）
 
@@ -207,19 +205,6 @@ async function loadAndShowArticle(filePath) {
         let contentWithFormat = line
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>');
-        
-        // ========== 关键：相邻段落之间自动加间距 ==========
-        // 如果上一行是空行，或者这个段落是第一段，不加额外间距
-        // 否则在段落前面加一个 <br> 或 margin
-        if (isPrevLineEmpty) {
-            // 有空行分隔，用正常段落间距
-            html += `<p class="keep-indent">${formatted}</p>\n`;
-        } else {
-            // 没有空行，用紧凑段落（加一点间距但不像空行那么大）
-            html += `<p class="keep-indent compact">${formatted}</p>\n`;
-        }
-
-        isPrevLineEmpty = false;
 
         html += '<p>' + contentWithFormat + '</p>\n';
     });
