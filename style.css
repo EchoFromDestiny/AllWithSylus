@@ -149,7 +149,8 @@
         
             #article-body p {
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, "宋体", "SimSun", serif;
-                text-indent: 2em;
+                white-space: pre-wrap;    /* 保留空格和Tab，但自动换行 */
+                word-wrap: break-word;    /* 长单词自动换行 */
                 margin: 0.3em 0;
             }
         
@@ -169,6 +170,14 @@
         
             #article-body p:has(> .quote) {
                 text-align: right;
+            }
+            #article-body p.epigraph {
+                  white-space: pre-wrap;
+                  text-indent: 4em !important;   /* 保留 4 个 Tab 的缩进效果 */
+                  text-align: right;
+                  color: #666;
+                  font-style: italic;
+                  margin: 0.5em 0;
             }
         
         /* 搜索框 */
