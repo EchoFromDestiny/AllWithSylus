@@ -343,6 +343,7 @@ const postContent = document.getElementById('post-content');
 // ========== 生成背景选项 ==========
 let currentBgKey = 'default';
 
+// ========== 生成背景选项（懒加载小图） ==========
 function renderBgOptions() {
     bgGrid.innerHTML = '';
     BG_LIST.forEach(item => {
@@ -350,14 +351,19 @@ function renderBgOptions() {
         div.className = 'bg-option';
         div.setAttribute('data-bg', item.key);
         
-        // 小图预览
+        // 小图预览（懒加载）
         const thumb = document.createElement('div');
         thumb.className = 'bg-thumb';
-        if (item.thumb) {
-            thumb.style.backgroundImage = `url('${item.thumb}')`;
-        } else {
+        thumb.setAttribute('data-src', item.thumb || '');
+        
+        // 默认背景显示灰色占位
+        if (!item.thumb) {
             thumb.style.background = '#f0f0f0';
             thumb.style.border = '2px solid #ddd';
+        } else {
+            // 占位色，等滚动到可见区域再加载真实图片
+            thumb.style.background = '#e8e8e8';
+            thumb.dataset.loaded = 'false';
         }
         
         const label = document.createElement('span');
@@ -372,9 +378,47 @@ function renderBgOptions() {
         
         bgGrid.appendChild(div);
     });
+    
+    // 启动懒加载监听
+    setupLazyLoading();
 }
 
-// ========== 选择背景 ==========
+// ========== 懒加载：只加载可见区域的小图 ==========
+function setupLazyLoading() {
+    // 使用 Intersection Observer API
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const thumb = entry.target;
+                    const src = thumb.dataset.src;
+                    if (src && thumb.dataset.loaded === 'false') {
+                        thumb.style.backgroundImage = `url('${src}')`;
+                        thumb.dataset.loaded = 'true';
+                    }
+                    observer.unobserve(thumb);
+                }
+            });
+        }, {
+            rootMargin: '50px',  // 提前50px开始加载
+            threshold: 0.01
+        });
+        
+        document.querySelectorAll('.bg-thumb[data-src]').forEach(thumb => {
+            observer.observe(thumb);
+        });
+    } else {
+        // 浏览器不支持 Intersection Observer，直接全部加载
+        document.querySelectorAll('.bg-thumb[data-src]').forEach(thumb => {
+            const src = thumb.dataset.src;
+            if (src) {
+                thumb.style.backgroundImage = `url('${src}')`;
+            }
+        });
+    }
+}
+
+// ========== 选择背景（优先加载选中的图） ==========
 function selectBg(key) {
     currentBgKey = key;
     const selected = BG_LIST.find(item => item.key === key);
@@ -385,12 +429,25 @@ function selectBg(key) {
     });
     
     if (selected && selected.image) {
+        // 立即显示背景图（如果还没加载完成，浏览器会异步加载）
         document.body.style.backgroundImage = `url('${selected.image}')`;
         document.body.style.backgroundSize = 'cover';
         document.body.style.backgroundPosition = 'center';
         document.body.style.backgroundAttachment = 'fixed';
         document.body.style.backgroundRepeat = 'no-repeat';
         document.body.classList.add('bg-image');
+        
+        // 预加载当前选中的小图（如果还没加载）
+        const thumbs = document.querySelectorAll('.bg-thumb');
+        thumbs.forEach(thumb => {
+            const parent = thumb.closest('.bg-option');
+            if (parent && parent.getAttribute('data-bg') === key) {
+                if (thumb.dataset.loaded === 'false' && selected.thumb) {
+                    thumb.style.backgroundImage = `url('${selected.thumb}')`;
+                    thumb.dataset.loaded = 'true';
+                }
+            }
+        });
     } else {
         // 默认背景
         document.body.style.backgroundImage = '';
@@ -411,6 +468,22 @@ function openPanel() {
     themePanel.style.display = 'block';
     panelOverlay.style.display = 'block';
     document.body.style.overflow = 'hidden';
+
+    // 延迟一下，让面板渲染完成后再触发加载
+    setTimeout(() => {
+        // 强制加载当前可见的小图
+        const visibleThumbs = document.querySelectorAll('.bg-thumb[data-src]');
+        visibleThumbs.forEach(thumb => {
+            const rect = thumb.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+                const src = thumb.dataset.src;
+                if (src && thumb.dataset.loaded === 'false') {
+                    thumb.style.backgroundImage = `url('${src}')`;
+                    thumb.dataset.loaded = 'true';
+                }
+            }
+        });
+    }, 100);
 }
 function closePanel() {
     themePanel.style.display = 'none';
@@ -442,7 +515,12 @@ function loadSavedSettings() {
     try {
         const savedKey = localStorage.getItem('selectedBg');
         if (savedKey && BG_LIST.some(item => item.key === savedKey)) {
+            document.body.style.backgroundColor = '#f5f5f5';
             selectBg(savedKey);
+        }
+        else
+        {
+            selectBg('default');
         }
     } catch(e) { /* 忽略 */ }
     
