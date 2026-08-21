@@ -192,8 +192,13 @@ async function loadAndShowArticle(filePath) {
             return;
         }
 
-        // 检查是否包含题记关键词（可选：如果行里有"——题记"这样的）
-        if (trimmed.includes('题记') || trimmed.includes('——')) {
+        // 判断是否为题记（只识别以破折号开头的行，或明确包含"题记"关键词的行）
+        const isEpigraph = trimmed.match(/^[—\-–]/) ||          // 以破折号开头
+                           trimmed.match(/^——\s*题记/) ||         // 以"——题记"开头
+                           trimmed === '——题记' ||                 // 精确匹配"——题记"
+                           trimmed === '—— 题记';                  // 精确匹配"—— 题记"
+        
+        if (isEpigraph) {
             let contentWithFormat = line
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.*?)\*/g, '<em>$1</em>');
