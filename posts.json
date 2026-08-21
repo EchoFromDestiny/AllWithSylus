@@ -1,6 +1,11 @@
 {
   "categories": [
     {
+          "name": "阅读前必看&声明",
+          "file": "posts/阅读前必看&声明.md",
+          "date": "2026-08-19"
+    },
+    {
       "name": "秦彻",
       "icon": "Sylus",
       "children": [
