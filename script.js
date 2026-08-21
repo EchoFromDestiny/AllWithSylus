@@ -316,6 +316,151 @@ document.getElementById('search').addEventListener('input', function(e) {
     });
 });
 
+// ========== 预设背景库（8 张你自己的图） ==========
+// 把 bg1.jpg ~ bg8.jpg 放在 images/ 文件夹里
+const BG_LIST = [
+    { key: 'default', label: '默认', thumb: '', image: '' },
+    { key: 'bg1', label: '时锢之钥', thumb: 'images/bg1.jpg', image: 'images/bg1.jpg' },
+    { key: 'bg2', label: '万象遇你', thumb: 'images/bg2.jpg', image: 'images/bg2.jpg' },
+    { key: 'bg3', label: '昔日掠影', thumb: 'images/bg3.jpg', image: 'images/bg3.jpg' },
+    { key: 'bg4', label: 'Bedge 1', thumb: 'images/bg4.PNG', image: 'images/bg4.PNG' },
+    { key: 'bg5', label: 'Bedge 2', thumb: 'images/bg5.PNG', image: 'images/bg5.PNG' },
+    { key: 'bg6', label: 'Bedge 3', thumb: 'images/bg6.PNG', image: 'images/bg6.PNG' },
+    { key: 'bg7', label: '五花八们', thumb: 'images/bg7.jpg', image: 'images/bg7.jpg' },
+    { key: 'bg8', label: '天放', thumb: 'images/bg8.jpg', image: 'images/bg8.jpg' },
+];
+
+// ========== DOM 元素 ==========
+const themeToggle = document.getElementById('theme-toggle');
+const themePanel = document.getElementById('theme-panel');
+const panelOverlay = document.getElementById('panel-overlay');
+const panelClose = document.getElementById('panel-close');
+const bgGrid = document.getElementById('bg-grid');
+const opacitySlider = document.getElementById('opacity-slider');
+const opacityValue = document.getElementById('opacity-value-panel');
+const postContent = document.getElementById('post-content');
+
+// ========== 生成背景选项 ==========
+let currentBgKey = 'default';
+
+function renderBgOptions() {
+    bgGrid.innerHTML = '';
+    BG_LIST.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-option';
+        div.setAttribute('data-bg', item.key);
+        
+        // 小图预览
+        const thumb = document.createElement('div');
+        thumb.className = 'bg-thumb';
+        if (item.thumb) {
+            thumb.style.backgroundImage = `url('${item.thumb}')`;
+        } else {
+            thumb.style.background = '#f0f0f0';
+            thumb.style.border = '2px solid #ddd';
+        }
+        
+        const label = document.createElement('span');
+        label.textContent = item.label;
+        
+        div.appendChild(thumb);
+        div.appendChild(label);
+        
+        div.addEventListener('click', function() {
+            selectBg(item.key);
+        });
+        
+        bgGrid.appendChild(div);
+    });
+}
+
+// ========== 选择背景 ==========
+function selectBg(key) {
+    currentBgKey = key;
+    const selected = BG_LIST.find(item => item.key === key);
+    
+    // 更新高亮
+    document.querySelectorAll('.bg-option').forEach(el => {
+        el.classList.toggle('active', el.getAttribute('data-bg') === key);
+    });
+    
+    if (selected && selected.image) {
+        document.body.style.backgroundImage = `url('${selected.image}')`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundAttachment = 'fixed';
+        document.body.style.backgroundRepeat = 'no-repeat';
+        document.body.classList.add('bg-image');
+    } else {
+        // 默认背景
+        document.body.style.backgroundImage = '';
+        document.body.style.backgroundSize = '';
+        document.body.style.backgroundPosition = '';
+        document.body.style.backgroundAttachment = '';
+        document.body.style.backgroundRepeat = '';
+        document.body.classList.remove('bg-image');
+    }
+    
+    try {
+        localStorage.setItem('selectedBg', key);
+    } catch(e) { /* 忽略 */ }
+}
+
+// ========== 打开/关闭面板 ==========
+function openPanel() {
+    themePanel.style.display = 'block';
+    panelOverlay.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+function closePanel() {
+    themePanel.style.display = 'none';
+    panelOverlay.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+themeToggle.addEventListener('click', openPanel);
+panelClose.addEventListener('click', closePanel);
+panelOverlay.addEventListener('click', closePanel);
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePanel();
+});
+
+// ========== 透明度控制 ==========
+opacitySlider.addEventListener('input', function() {
+    const val = this.value;
+    opacityValue.textContent = val + '%';
+    postContent.style.backgroundColor = `rgba(255, 255, 255, ${val / 100})`;
+    try {
+        localStorage.setItem('contentOpacity', val);
+    } catch(e) { /* 忽略 */ }
+});
+
+// ========== 加载保存的设置 ==========
+function loadSavedSettings() {
+    // 加载背景
+    try {
+        const savedKey = localStorage.getItem('selectedBg');
+        if (savedKey && BG_LIST.some(item => item.key === savedKey)) {
+            selectBg(savedKey);
+        }
+    } catch(e) { /* 忽略 */ }
+    
+    // 加载透明度
+    try {
+        const savedOpacity = localStorage.getItem('contentOpacity');
+        if (savedOpacity) {
+            const val = parseInt(savedOpacity);
+            opacitySlider.value = val;
+            opacityValue.textContent = val + '%';
+            postContent.style.backgroundColor = `rgba(255, 255, 255, ${val / 100})`;
+        }
+    } catch(e) { /* 忽略 */ }
+}
+
+// ========== 初始化 ==========
+renderBgOptions();
+
 // 初始化
 async function init() {
     await loadData();
@@ -343,6 +488,9 @@ async function init() {
 
     // 自动更新版权年份
     document.getElementById('current-year').textContent = new Date().getFullYear();
+
+    //加载保存的设置
+    loadSavedSettings();
 }
 
 init();
