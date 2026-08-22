@@ -17,7 +17,7 @@
     <!-- ========== 悬浮面板 ========== -->
     <div id="theme-panel" style="display:none;">
         <div class="panel-header">
-            <span>🎨 背景与透明度</span>
+            <span>背景与透明度</span>
             <button id="panel-close">✕</button>
         </div>
         <div class="panel-body">
@@ -43,10 +43,12 @@
     <input type="text" id="search" placeholder="搜索文章标题...">
 
     <!-- 导航路径 -->
+    <!-- 导航路径 + 背景切换按钮 -->
     <div id="breadcrumb">
-        <span id="home-btn" style="cursor:pointer;color:#1a0dab;font-weight:600;">首页</span>
-        <span id="breadcrumb-path"></span>
-    </div>
+        <div class="breadcrumb-left">
+            <span id="home-btn" style="cursor:pointer;color:#1a0dab;font-weight:600;">首页</span>
+            <span id="breadcrumb-path"></span>
+        </div>
         <button id="theme-toggle">🎨选择背景</button>
     </div>
 
