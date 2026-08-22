@@ -129,101 +129,110 @@ function createFileItem(item) {
     return div;
 }
 
-// 加载并显示文章
+// 加载并显示文章 - 简化稳定版
 async function loadAndShowArticle(filePath) {
-    //进入文章滚动至顶部
-    window.scrollTo(0,0);
-    // ========== 显示加载提示，隐藏正文 ==========
+    // 1. 滚动到顶部
+    window.scrollTo(0, 0);
+
+    // 2. 显示加载动画，隐藏正文区域
     const loadingEl = document.getElementById('loading-placeholder');
     const articleBody = document.getElementById('article-body');
     const postNavBottom = document.getElementById('post-nav-bottom');
-    
+
     loadingEl.style.display = 'flex';
     articleBody.style.display = 'none';
     postNavBottom.style.display = 'none';
 
-    //实际显示正文
-    const res = await fetch(filePath);
-    const markdown = await res.text();
-
-    let lines = markdown.split('\n');
-    let html = '';
-    let prevLineWasEmpty = false;
-
-    lines.forEach((line, index) => {
-        let trimmed = line.trim();
-        let content = line;  // 保留原始行内容（含缩进空格）
-
-        // 跳过空行
-        if (trimmed === '') {
-            prevLineWasEmpty = true;
-            return;
+    try {
+        // 3. 只做一件事：获取文章内容
+        const response = await fetch(filePath);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const markdown = await response.text();
 
-        // 处理标题（# 开头）
-        if (trimmed.match(/^# /)) {
-            html += trimmed.replace(/^# (.*$)/, '<h1>$1</h1>\n');
-            prevLineWasEmpty = false;
-            return;
-        }
-        if (trimmed.match(/^## /)) {
-            html += trimmed.replace(/^## (.*$)/, '<h2>$1</h2>\n');
-            prevLineWasEmpty = false;
-            return;
-        }
+        // 4. 解析并生成 HTML
+        let lines = markdown.split('\n');
+        let html = '';
+        let prevLineWasEmpty = false;
 
-        // 处理列表（- 开头）
-        if (trimmed.match(/^- /)) {
-            html += trimmed.replace(/^- (.*$)/, '<li>$1</li>\n');
-            prevLineWasEmpty = false;
-            return;
-        }
+        lines.forEach((line) => {
+            let trimmed = line.trim();
+            let content = line;
 
-        // 处理分隔线（--- 单独一行）
-        if (trimmed === '---') {
-            html += '<hr>\n';
-            prevLineWasEmpty = false;
-            return;
-        }
+            if (trimmed === '') {
+                prevLineWasEmpty = true;
+                return;
+            }
 
-        // 判断是否为题记（只识别以破折号开头的行，或明确包含"题记"关键词的行）
-        const isEpigraph = trimmed.match(/^[—\-–]/) ||          // 以破折号开头
-                           trimmed.match(/^——\s*题记/) ||         // 以"——题记"开头
-                           trimmed === '——题记' ||                 // 精确匹配"——题记"
-                           trimmed === '—— 题记';                  // 精确匹配"—— 题记"
-        
-        if (isEpigraph) {
-            let contentWithFormat = line
+            // --- 处理标题 ---
+            if (trimmed.match(/^# /)) {
+                html += trimmed.replace(/^# (.*$)/, '<h1>$1</h1>\n');
+                prevLineWasEmpty = false;
+                return;
+            }
+            if (trimmed.match(/^## /)) {
+                html += trimmed.replace(/^## (.*$)/, '<h2>$1</h2>\n');
+                prevLineWasEmpty = false;
+                return;
+            }
+
+            // --- 处理列表 ---
+            if (trimmed.match(/^- /)) {
+                html += trimmed.replace(/^- (.*$)/, '<li>$1</li>\n');
+                prevLineWasEmpty = false;
+                return;
+            }
+
+            // --- 处理分隔线 ---
+            if (trimmed === '---') {
+                html += '<hr>\n';
+                prevLineWasEmpty = false;
+                return;
+            }
+
+            // --- 处理粗体和斜体 ---
+            let contentWithFormat = content
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.*?)\*/g, '<em>$1</em>');
-            html += `<p class="epigraph">${contentWithFormat}</p>\n`;
+
+            // --- 处理题记（以破折号开头） ---
+            const isEpigraph = trimmed.match(/^[—\-–]/);
+            if (isEpigraph) {
+                html += `<p class="epigraph">${contentWithFormat}</p>\n`;
+                prevLineWasEmpty = false;
+                return;
+            }
+
+            // --- 处理普通段落 ---
+            if (prevLineWasEmpty) {
+                html += `<p class="keep-indent">${contentWithFormat}</p>\n`;
+            } else {
+                html += `<p class="keep-indent compact">${contentWithFormat}</p>\n`;
+            }
             prevLineWasEmpty = false;
-            return;
-        }
+        });
 
-        //判断空行间距
-        if(prevLineWasEmpty){
-            html += `<p class="keep-indent">${contentWithFormat}</p>\n`;
-        } else {
-            // 没有空行：紧凑段落（适合小说里的自然分段）
-            html += `<p class="keep-indent compact">${contentWithFormat}</p>\n`;
-        }
-        
-        prevLineWasEmpty = false;
-    });
+        // 5. 将生成的 HTML 插入页面，并切换显示
+        articleBody.innerHTML = html;
 
-    //隐藏加载提示，显示正文
-    loadingEl.style.display = 'none';
-    articleBody.style.display = 'block';
-    postNavBottom.style.display = 'flex';
-    //隐藏结束
-    
-    document.getElementById('tree-container').style.display = 'none';
-    document.getElementById('search').style.display = 'none';
-    document.getElementById('breadcrumb').style.display = 'block';
-    document.getElementById('post-content').style.display = 'block';
-    document.getElementById('article-body').innerHTML = html;
+    } catch (error) {
+        // 6. 如果文章加载失败，给用户一个友好的提示
+        console.error('文章加载失败:', error);
+        articleBody.innerHTML = `<p style="color: #c44; text-align: center; padding: 40px;">文章加载失败，请稍后重试</p>`;
+    } finally {
+        // 7. 无论成功还是失败，都隐藏加载动画，显示正文区域
+        loadingEl.style.display = 'none';
+        articleBody.style.display = 'block';
+        postNavBottom.style.display = 'flex';
 
+        document.getElementById('tree-container').style.display = 'none';
+        document.getElementById('search').style.display = 'none';
+        document.getElementById('breadcrumb').style.display = 'block';
+        document.getElementById('post-content').style.display = 'block';
+    }
+
+    // 8. 更新上一篇/下一篇按钮
     updatePrevNext(filePath);
 }
 
