@@ -256,10 +256,6 @@ async function loadAndShowArticle(filePath) {
     }
     // ========== 预加载结束 ==========
 
-    //实际显示正文
-    const res = await fetch(filePath);
-    const markdown = await res.text();
-
     let lines = markdown.split('\n');
     let html = '';
     let prevLineWasEmpty = false;
