@@ -6,6 +6,11 @@
           "date": "2026-08-19"
     },
     {
+          "name": "致谢",
+          "file": "posts/致谢.md",
+          "date": "2026-08-19"
+    },
+    {
       "name": "秦彻",
       "icon": "Sylus",
       "children": [
