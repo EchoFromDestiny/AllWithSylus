@@ -207,7 +207,7 @@
            display: flex;
            justify-content: space-between;
            align-items: center;
-           flex-wrap: wrap;
+           flex-wrap: nowrap;
            gap: 8px 12px;
            width: 100%;
            box-sizing: border-box;
@@ -248,18 +248,21 @@
        /* ========== 切换按钮（放在面包屑右侧） ========== */
        #theme-toggle {
            padding: 4px 14px;
-           border: 1px solid #ddd;
-           background: white;
+           border: none;
+           background: transparent;
            cursor: pointer;
            font-size: 13px;
            font-family: "Times New Roman", "宋体", "SimSun", serif;
            transition: 0.15s;
-           border-radius: 0;
            white-space: nowrap;
            flex-shrink: 0;
+           color: #1a0dab;            /* ← 和面包屑链接颜色一致 */
+           text-decoration: underline;
+           text-underline-offset: 2px;
        }
        #theme-toggle:hover {
-           background: #f0f0f0;
+           color: #ff6b00;            /* ← hover 时变色（和面包屑链接一样） */
+           background: transparent;
        }
               
        /* ========== 遮罩层 ========== */
