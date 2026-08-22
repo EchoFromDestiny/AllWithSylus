@@ -751,3 +751,51 @@ async function init() {
 }
 
 init();
+
+// ========== 键盘左右键翻页 ==========
+document.addEventListener('keydown', function(e) {
+    // 只在文章阅读模式下生效（文章正文可见）
+    const postContent = document.getElementById('post-content');
+    if (postContent.style.display !== 'block') {
+        return; // 不在文章页面，不处理
+    }
+    
+    // 如果用户在输入框里打字，不触发翻页
+    const tagName = document.activeElement.tagName;
+    if (tagName === 'INPUT' || tagName === 'TEXTAREA') {
+        return;
+    }
+    
+    // 左箭头 ← 上一篇
+    if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const prevBtn = document.getElementById('prev-article');
+        // 如果按钮不是 disabled 状态，触发点击
+        if (!prevBtn.classList.contains('disabled')) {
+            prevBtn.click();
+        }
+    }
+    
+    // 右箭头 → 下一篇
+    if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        const nextBtn = document.getElementById('next-article');
+        if (!nextBtn.classList.contains('disabled')) {
+            nextBtn.click();
+        }
+    }
+});
+
+// ========== Ctrl + K 快速聚焦搜索框 ==========
+document.addEventListener('keydown', function(e) {
+    // Ctrl+K 或 Cmd+K
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        const searchInput = document.getElementById('search');
+        // 只有在列表页面（搜索框可见）时才聚焦
+        if (searchInput.style.display !== 'none') {
+            searchInput.focus();
+            searchInput.select();
+        }
+    }
+});
