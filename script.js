@@ -1,98 +1,6 @@
 let allData = null;
 let currentPath = []; // 当前导航路径
 let savedScrollPosition = 0;//保存滚动位置
-let isAppReady = false;
-let preloadedArticle = null;
-let preloadedFilePath = null;
-
-// ========== 背景图预加载 ==========
-function preloadBackgroundImage(url) {
-    return new Promise((resolve, reject) => {
-        if (!url) {
-            resolve(); // 没有背景图，直接跳过
-            return;
-        }
-        const img = new Image();
-        img.onload = function() {
-            resolve();
-        };
-        img.onerror = function() {
-            // 加载失败也继续，不阻塞页面
-            resolve();
-        };
-        img.src = url;
-    });
-}
-
-// ========== 获取当前选中的背景图 URL ==========
-function getSelectedBgUrl() {
-    try {
-        const savedKey = localStorage.getItem('selectedBg');
-        if (savedKey) {
-            const found = BG_LIST.find(item => item.key === savedKey);
-            if (found && found.image) {
-                return found.image;
-            }
-        }
-    } catch(e) { /* 忽略 */ }
-    return null;
-}
-
-// ========== 预加载文章内容（提前拉取，点击时秒开） ==========
-async function preloadArticle(filePath) {
-    // 如果已经预加载了同一篇文章，跳过
-    if (preloadedFilePath === filePath && preloadedArticle !== null) {
-        return;
-    }
-    
-    try {
-        const res = await fetch(filePath);
-        const markdown = await res.text();
-        preloadedArticle = markdown;
-        preloadedFilePath = filePath;
-        console.log('📄 文章已预加载:', filePath);
-    } catch(e) {
-        console.warn('预加载文章失败:', e);
-        preloadedArticle = null;
-        preloadedFilePath = null;
-    }
-}
-
-// ========== 获取当前层级的第一篇文章 ==========
-function getFirstArticleInCurrentLevel() {
-    let currentLevel = allData.categories;
-    let targetPath = window.currentLevelPath || [];
-    
-    if (targetPath.length > 0) {
-        let temp = allData.categories;
-        for (let i = 0; i < targetPath.length; i++) {
-            const found = temp.find(item => item.name === targetPath[i]);
-            if (found && found.children) {
-                temp = found.children;
-            } else {
-                break;
-            }
-        }
-        currentLevel = temp;
-    }
-    
-    // 提取所有文章
-    function getAllArticles(items) {
-        let result = [];
-        items.forEach(item => {
-            if (item.file) {
-                result.push(item);
-            }
-            if (item.children) {
-                result = result.concat(getAllArticles(item.children));
-            }
-        });
-        return result;
-    }
-    
-    const articles = getAllArticles(currentLevel);
-    return articles.length > 0 ? articles[0] : null;
-}
 
 // 加载数据
 async function loadData() {
@@ -178,14 +86,6 @@ function renderTree(path) {
             }
         });
     }
-    // ========== 列表渲染完成后，预加载第一篇文章 ==========
-    setTimeout(() => {
-        const firstArticle = getFirstArticleInCurrentLevel();
-        if (firstArticle && firstArticle.file) {
-            preloadArticle(firstArticle.file);
-        }
-    }, 300); // 延迟 300ms，让列表先渲染出来
-    // ========== 预加载结束 ==========
 }
 
 // 创建文件夹/分类元素
@@ -242,19 +142,9 @@ async function loadAndShowArticle(filePath) {
     articleBody.style.display = 'none';
     postNavBottom.style.display = 'none';
 
-    // ========== 优先使用预加载的内容 ==========
-    let markdown;
-    if (preloadedFilePath === filePath && preloadedArticle !== null) {
-        // 命中缓存！直接使用预加载的内容
-        markdown = preloadedArticle;
-        console.log('文章从缓存加载:', filePath);
-    } else {
-        // 没有缓存，正常请求
-        const res = await fetch(filePath);
-        markdown = await res.text();
-        console.log('文章从网络加载:', filePath);
-    }
-    // ========== 预加载结束 ==========
+    //实际显示正文
+    const res = await fetch(filePath);
+    const markdown = await res.text();
 
     let lines = markdown.split('\n');
     let html = '';
@@ -394,21 +284,6 @@ function updatePrevNext(currentFile) {
         nextBtn.onclick = function() {
             loadAndShowArticle(nextArticle.file);
         };
-    } else {
-        nextBtn.textContent = '已是最后一篇 →';
-        nextBtn.className = 'nav-btn disabled';
-        nextBtn.onclick = null;
-    }
-    if (currentIndex < articles.length - 1) {
-        const nextArticle = articles[currentIndex + 1];
-        nextBtn.textContent = nextArticle.name + ' →';
-        nextBtn.className = 'nav-btn';
-        nextBtn.onclick = function() {
-            loadAndShowArticle(nextArticle.file);
-        };
-        // ========== 预加载下一篇 ==========
-        preloadArticle(nextArticle.file);
-        // ========== 预加载结束 ==========
     } else {
         nextBtn.textContent = '已是最后一篇 →';
         nextBtn.className = 'nav-btn disabled';
@@ -574,7 +449,7 @@ function setupLazyLoading() {
 }
 
 // ========== 选择背景（优先加载选中的图） ==========
-async function selectBg(key) {
+function selectBg(key) {
     currentBgKey = key;
     const selected = BG_LIST.find(item => item.key === key);
     
@@ -584,10 +459,7 @@ async function selectBg(key) {
     });
     
     if (selected && selected.image) {
-        // 先预加载背景图
-        await preloadBackgroundImage(selected.image);
-        
-        // 预加载完成后，再显示
+        // 立即显示背景图（如果还没加载完成，浏览器会异步加载）
         document.body.style.backgroundImage = `url('${selected.image}')`;
         document.body.style.backgroundSize = 'cover';
         document.body.style.backgroundPosition = 'center';
@@ -595,7 +467,7 @@ async function selectBg(key) {
         document.body.style.backgroundRepeat = 'no-repeat';
         document.body.classList.add('bg-image');
         
-        // 预加载当前选中的小图
+        // 预加载当前选中的小图（如果还没加载）
         const thumbs = document.querySelectorAll('.bg-thumb');
         thumbs.forEach(thumb => {
             const parent = thumb.closest('.bg-option');
@@ -697,34 +569,16 @@ function loadSavedSettings() {
 // ========== 初始化 ==========
 renderBgOptions();
 
-// 初始化（按优先级加载）
+// 初始化
 async function init() {
-    // ========== 第一步：立即加载并显示背景图 ==========
-    const bgUrl = getSelectedBgUrl() || 'images/bg.jpg'; // 如果没有保存，用默认背景
-    
-    if (bgUrl) {
-        // 先设置背景占位，让用户知道在加载
-        document.body.style.backgroundImage = `url('${bgUrl}')`;
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
-        document.body.style.backgroundAttachment = 'fixed';
-        document.body.style.backgroundRepeat = 'no-repeat';
-        document.body.classList.add('bg-image');
-        
-        // 预加载背景图（确保渲染完成）
-        await preloadBackgroundImage(bgUrl);
-    }
-    
-    // ========== 第二步：加载文章数据 ==========
     await loadData();
-    
-    // ========== 第三步：渲染页面 ==========
     currentPath = [];
     renderTree([]);
 
     document.getElementById('home-btn').addEventListener('click', function() {
         currentPath = [];
         renderTree([]);
+        //恢复滚动位置
         window.scrollTo({ top: savedScrollPosition, behavior: 'instant' });
     });
 
@@ -736,59 +590,49 @@ async function init() {
         const targetPath = window.currentLevelPath || [];
         currentPath = targetPath;
         renderTree(targetPath);
+        //恢复滚动位置
         window.scrollTo({ top: savedScrollPosition, behavior: 'instant' });
     });
 
     // 自动更新版权年份
     document.getElementById('current-year').textContent = new Date().getFullYear();
 
-    // 加载保存的设置（透明度等）
+    //加载保存的设置
     loadSavedSettings();
 }
 
 init();
 
-// ========== 键盘左右键翻页 ==========
+// ========== 键盘快捷键 ==========
 document.addEventListener('keydown', function(e) {
-    // 只在文章阅读模式下生效（文章正文可见）
+    // 1. 左右箭头翻页（仅在文章页面）
     const postContent = document.getElementById('post-content');
-    if (postContent.style.display !== 'block') {
-        return; // 不在文章页面，不处理
-    }
-    
-    // 如果用户在输入框里打字，不触发翻页
-    const tagName = document.activeElement.tagName;
-    if (tagName === 'INPUT' || tagName === 'TEXTAREA') {
-        return;
-    }
-    
-    // 左箭头 ← 上一篇
-    if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        const prevBtn = document.getElementById('prev-article');
-        // 如果按钮不是 disabled 状态，触发点击
-        if (!prevBtn.classList.contains('disabled')) {
-            prevBtn.click();
+    if (postContent.style.display === 'block') {
+        const tagName = document.activeElement.tagName;
+        if (tagName !== 'INPUT' && tagName !== 'TEXTAREA') {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                const prevBtn = document.getElementById('prev-article');
+                if (!prevBtn.classList.contains('disabled')) {
+                    prevBtn.click();
+                }
+                return;
+            }
+            if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                const nextBtn = document.getElementById('next-article');
+                if (!nextBtn.classList.contains('disabled')) {
+                    nextBtn.click();
+                }
+                return;
+            }
         }
     }
     
-    // 右箭头 → 下一篇
-    if (e.key === 'ArrowRight') {
-        e.preventDefault();
-        const nextBtn = document.getElementById('next-article');
-        if (!nextBtn.classList.contains('disabled')) {
-            nextBtn.click();
-        }
-    }
-});
-
-// ========== Ctrl + K 快速聚焦搜索框 ==========
-document.addEventListener('keydown', function(e) {
-    // Ctrl+K 或 Cmd+K
+    // 2. Ctrl+K 聚焦搜索框
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         const searchInput = document.getElementById('search');
-        // 只有在列表页面（搜索框可见）时才聚焦
         if (searchInput.style.display !== 'none') {
             searchInput.focus();
             searchInput.select();
