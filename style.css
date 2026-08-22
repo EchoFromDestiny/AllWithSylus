@@ -171,14 +171,20 @@
             #article-body p:has(> .quote) {
                 text-align: right;
             }
-            #article-body p.epigraph {
+            /* 相邻段落（没有空行分隔）用更小的间距 */
+              #article-body p.keep-indent.compact {
+                  margin: 0.05em 0;      /* 几乎看不出间距，像同段内的换行 */
+              }
+              
+              /* 题记：不缩进，右对齐，斜体灰色 */
+              #article-body p.epigraph {
                   white-space: pre-wrap;
-                  text-indent: 4em !important;   /* 保留 4 个 Tab 的缩进效果 */
+                  text-indent: 0 !important;  /* 取消缩进 */
                   text-align: right;
                   color: #666;
                   font-style: italic;
                   margin: 0.5em 0;
-            }
+              }
         
         /* 搜索框 */
         #search {
