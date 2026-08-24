@@ -13,8 +13,6 @@
        /*卡片及正文区域半透明*/
         .category-card,
        #post-content,
-       #post-nav-top,
-       #post-nav-bottom,
        #search,
        #breadcrumb,
        #control-panel {
@@ -436,6 +434,7 @@
             padding-bottom: 12px;
             border-bottom: 1px solid #eee;
             background: transparent !important;  /*直接设置透明，显示父元素背景*/
+            backdrop-filter: none !important;/*去掉模糊效果*/
         }
     
         #post-nav-top span {
@@ -456,6 +455,7 @@
             padding-top: 20px;
             border-top: 1px solid #eee;
             background: transparent !important;  /*直接设置透明，显示父元素背景*/
+            backdrop-filter: none !important;/*去掉模糊效果*/
         }
         
             #post-nav-bottom .nav-btn {
