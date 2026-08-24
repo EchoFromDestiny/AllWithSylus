@@ -160,9 +160,15 @@ async function loadAndShowArticle(filePath) {
             let trimmed = line.trim();
             let content = line;
 
+            //标记空行
             if (trimmed === '') {
                 prevLineWasEmpty = true;
                 return;
+            }
+            
+            //如果上一行是空行，插入一个占位符段落
+            if (prevLineWasEmpty) {
+                html += `<p class="paragraph-spacer">&nbsp;</p>\n`;
             }
 
             // --- 处理标题 ---
@@ -205,11 +211,10 @@ async function loadAndShowArticle(filePath) {
             }
 
             // --- 处理普通段落 ---
-            if (prevLineWasEmpty) {
-                html += `<p class="keep-indent">${contentWithFormat}</p>\n`;
-            } else {
-                html += `<p class="keep-indent compact">${contentWithFormat}</p>\n`;
-            }
+            // ========== 普通段落 ==========
+            // 所有段落都用统一间距，因为空行已经用占位符了
+            html += `<p class="keep-indent">${contentWithFormat}</p>\n`;
+            
             prevLineWasEmpty = false;
         });
 
