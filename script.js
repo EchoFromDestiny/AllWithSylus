@@ -594,17 +594,20 @@ function loadSavedSettings() {
             const opacity = val / 100;
             opacitySlider.value = val;
             opacityValue.textContent = val + '%';
+            postContent.style.backgroundColor = `rgba(255, 255, 255, ${opacity})`;
             
-            const elements = [
-                document.getElementById('post-content'),
-                document.getElementById('post-nav-top'),
-                document.getElementById('post-nav-bottom')
-            ];
-            elements.forEach(el => {
-                if (el) {
-                    el.style.backgroundColor = `rgba(255, 255, 255, ${opacity})`;
-                }
-            });
+            // ========== 清空顶部和底部导航的内联背景 ==========
+            const postNavTop = document.getElementById('post-nav-top');
+            const postNavBottom = document.getElementById('post-nav-bottom');
+            if (postNavTop) {
+                postNavTop.style.backgroundColor = 'transparent';
+                postNavTop.style.background = 'transparent';
+            }
+            if (postNavBottom) {
+                postNavBottom.style.backgroundColor = 'transparent';
+                postNavBottom.style.background = 'transparent';
+            }
+            // ========== 清空结束 ==========
         }
     } catch(e) { /* 忽略 */ }
 }
@@ -636,6 +639,18 @@ async function init() {
         //恢复滚动位置
         window.scrollTo({ top: savedScrollPosition, behavior: 'instant' });
     });
+
+    // 初始化时清空顶部和底部导航的内联背景
+    const postNavTop = document.getElementById('post-nav-top');
+    const postNavBottom = document.getElementById('post-nav-bottom');
+    if (postNavTop) {
+        postNavTop.style.backgroundColor = 'transparent';
+        postNavTop.style.background = 'transparent';
+    }
+    if (postNavBottom) {
+        postNavBottom.style.backgroundColor = 'transparent';
+        postNavBottom.style.background = 'transparent';
+    }
 
     // 自动更新版权年份
     document.getElementById('current-year').textContent = new Date().getFullYear();
