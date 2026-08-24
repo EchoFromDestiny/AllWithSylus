@@ -426,7 +426,7 @@
             margin-bottom: 16px;
             padding-bottom: 12px;
             border-bottom: 1px solid #eee;
-            background: inherit;  /* ← 继承父元素的背景色 */
+            background: transparent !important;  /*直接设置透明，显示父元素背景*/
         }
     
         #post-nav-top span {
@@ -446,7 +446,7 @@
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #eee;
-            background: inherit;  /* ← 继承父元素的背景色 */
+            background: transparent !important;  /*直接设置透明，显示父元素背景*/
         }
         
             #post-nav-bottom .nav-btn {
