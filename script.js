@@ -541,8 +541,21 @@ document.addEventListener('keydown', function(e) {
 // ========== 透明度控制 ==========
 opacitySlider.addEventListener('input', function() {
     const val = this.value;
+    const opacity = val / 100;
     opacityValue.textContent = val + '%';
-    postContent.style.backgroundColor = `rgba(255, 255, 255, ${val / 100})`;
+    
+    // 统一设置所有需要透明的元素
+    const elements = [
+        document.getElementById('post-content'),
+        document.getElementById('post-nav-top'),
+        document.getElementById('post-nav-bottom')
+    ];
+    elements.forEach(el => {
+        if (el) {
+            el.style.backgroundColor = `rgba(255, 255, 255, ${opacity})`;
+        }
+    });
+    
     try {
         localStorage.setItem('contentOpacity', val);
     } catch(e) { /* 忽略 */ }
@@ -568,9 +581,20 @@ function loadSavedSettings() {
         const savedOpacity = localStorage.getItem('contentOpacity');
         if (savedOpacity) {
             const val = parseInt(savedOpacity);
+            const opacity = val / 100;
             opacitySlider.value = val;
             opacityValue.textContent = val + '%';
-            postContent.style.backgroundColor = `rgba(255, 255, 255, ${val / 100})`;
+            
+            const elements = [
+                document.getElementById('post-content'),
+                document.getElementById('post-nav-top'),
+                document.getElementById('post-nav-bottom')
+            ];
+            elements.forEach(el => {
+                if (el) {
+                    el.style.backgroundColor = `rgba(255, 255, 255, ${opacity})`;
+                }
+            });
         }
     } catch(e) { /* 忽略 */ }
 }
