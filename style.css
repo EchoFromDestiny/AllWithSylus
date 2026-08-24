@@ -448,22 +448,41 @@
 
         /* 文章底部导航 */
         #post-nav-bottom {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;  /* 左、中、右三栏 */
             align-items: center;
+            gap: 16px;
             margin-top: 30px;
             padding-top: 20px;
             border-top: 1px solid #eee;
             background: transparent !important;  /*直接设置透明，显示父元素背景*/
             backdrop-filter: none !important;/*去掉模糊效果*/
         }
+
+       /* 左侧：上一篇 */
+       #post-nav-bottom .nav-btn:first-child {
+           justify-self: start;   /* 左对齐 */
+           text-align: left;
+       }
+       
+       /* 中间：返回上一级 */
+       #post-nav-bottom .nav-btn:nth-child(2) {
+           justify-self: center;  /* 居中 */
+           text-align: center;
+       }
+       
+       /* 右侧：下一篇 */
+       #post-nav-bottom .nav-btn:last-child {
+           justify-self: end;     /* 右对齐 */
+           text-align: right;
+       }
         
             #post-nav-bottom .nav-btn {
                 color: #1a0dab;
                 cursor: pointer;
                 font-size: 15px;
                 padding: 6px 16px;
-                border-radius: 0;
+                border-radius: 2px;
                 border: 1px solid #ddd;
                 background: #fafafa;
                 transition: 0.15s;
