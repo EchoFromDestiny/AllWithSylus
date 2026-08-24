@@ -544,22 +544,27 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ========== 透明度控制 ==========
+// ========== 透明度控制 ==========
 opacitySlider.addEventListener('input', function() {
     const val = this.value;
     const opacity = val / 100;
     opacityValue.textContent = val + '%';
     
-    // 统一设置所有需要透明的元素
-    const elements = [
-        document.getElementById('post-content'),
-        document.getElementById('post-nav-top'),
-        document.getElementById('post-nav-bottom')
-    ];
-    elements.forEach(el => {
-        if (el) {
-            el.style.backgroundColor = `rgba(255, 255, 255, ${opacity})`;
-        }
-    });
+    // 只设置 #post-content 的背景
+    postContent.style.backgroundColor = `rgba(255, 255, 255, ${opacity})`;
+    
+    // ========== 强制清空顶部和底部导航的内联背景 ==========
+    const postNavTop = document.getElementById('post-nav-top');
+    const postNavBottom = document.getElementById('post-nav-bottom');
+    if (postNavTop) {
+        postNavTop.style.backgroundColor = 'transparent';
+        postNavTop.style.background = 'transparent';
+    }
+    if (postNavBottom) {
+        postNavBottom.style.backgroundColor = 'transparent';
+        postNavBottom.style.background = 'transparent';
+    }
+    // ========== 清空结束 ==========
     
     try {
         localStorage.setItem('contentOpacity', val);
