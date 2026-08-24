@@ -185,6 +185,15 @@
                   font-style: italic;
                   margin: 0.5em 0;
               }
+
+              #article-body p.paragraph-spacer {
+                  height: 1.2em;           /* 占位高度，相当于一个空行 */
+                  margin: 0;
+                  padding: 0;
+                  display: block;
+                  visibility: hidden;      /* 隐藏内容（&nbsp;不可见），但保留高度 */
+                  user-select: none;       /* 防止被选中 */
+              }
         
         /* 搜索框 */
         #search {
